@@ -64,7 +64,7 @@ IDENTIFIED BY '<password>';
 
 ## Creating a Virtual Schema
 
-Below you see how a SAP HANA Virtual Schema is created. Please note that you have to provide the name of the database in the property `SHEMA_NAME`.
+Below you see how a SAP HANA Virtual Schema is created. Please note that you have to provide the name of the database in the property `SCHEMA_NAME`.
 
 ```sql
 CREATE VIRTUAL SCHEMA <virtual schema name>
@@ -99,7 +99,7 @@ The following column types are not supported by this dialect:
 
 In HANA you are allowed to create columns of type `DECIMAL` without parameterizing them. I.e. you can skip the part in the brackets.
 
-What the Virtual Schemas get from the HANA JDBC driver as column metadata is a column of precision 34 and scale 0. So in theory this columns values should behave like a 34-digit integer number. Tests that we conducted with a SQL editor though show that the values can have fractional digits. In fact values of this column type behave like floating point numbers.
+What the Virtual Schemas get from the HANA JDBC driver as column metadata is a column of precision 34 and scale 0. So in theory this column's values should behave like a 34-digit integer number. Tests that we conducted with a SQL editor though show that the values can have fractional digits. In fact values of this column type behave like floating point numbers.
 
 Unfortunately we can't tell the metadata of columns defined with `DECIMAL` and `DECIMAL(34,0)` appart even though they behave differently.
 
