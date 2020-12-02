@@ -15,7 +15,7 @@ public class HanaContainer extends JdbcDatabaseContainer<HanaContainer> {
 
     public HanaContainer() {
         super(DockerImageName.parse("store/saplabs/hanaexpress:2.00.045.00.20200121.1"));
-        if (!Path.of(System.getProperty("user.home")).resolve(".accept-sap-license").toFile().exists()) {
+        if (!Path.of(System.getProperty("user.home")).resolve(".agree-to-sap-license").toFile().exists()) {
             throw new IllegalStateException(ExaError.messageBuilder("E-VSHA-1")
                     .message("Could not find ~/.agree-to-sap-license.")
                     .mitigation(
