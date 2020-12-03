@@ -111,6 +111,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.21</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <artifactId>org.jacoco.agent</artifactId>
             <groupId>org.jacoco</groupId>
             <version>0.8.5</version>
