@@ -12,6 +12,7 @@ public class HanaContainer extends JdbcDatabaseContainer<HanaContainer> {
     public static final int HANA_PORT = 39041;
     public static final String DRIVER_CLASS = "com.sap.db.jdbc.Driver";
     private static final String PASSWORD = "Chutie2eiMu0ah0Gie1B";
+    private static final int T_20_MINUTES = 20 * 60;
 
     public HanaContainer() {
         super(DockerImageName.parse("store/saplabs/hanaexpress:2.00.045.00.20200121.1"));
@@ -22,6 +23,7 @@ public class HanaContainer extends JdbcDatabaseContainer<HanaContainer> {
                             "Please read the SAP Developer Center Software Developer License Agreement and in case you agree create the file ~/.agree-to-sap-license. The content of the file is not relevant. You can leave it empty.")
                     .toString());
         }
+        withConnectTimeoutSeconds(T_20_MINUTES);
         setCommand("--master-password " + PASSWORD + " --agree-to-sap-license");
     }
 
