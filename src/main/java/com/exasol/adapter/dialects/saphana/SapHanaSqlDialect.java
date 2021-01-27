@@ -2,11 +2,16 @@ package com.exasol.adapter.dialects.saphana;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.dialects.SqlDialect.NullSorting;
-import com.exasol.adapter.dialects.SqlDialect.StructureElementSupport;
+import com.exasol.adapter.dialects.AbstractSqlDialect;
+import com.exasol.adapter.dialects.QueryRewriter;
+import com.exasol.adapter.dialects.rewriting.ImportIntoQueryRewriter;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
 import com.exasol.adapter.jdbc.*;
 import com.exasol.adapter.sql.ScalarFunction;
+import com.exasol.errorreporting.ExaError;
+
+import java.sql.SQLException;
+import java.util.*;
 
 import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
 import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
@@ -14,12 +19,9 @@ import static com.exasol.adapter.capabilities.AggregateFunctionCapability.*;
 import static com.exasol.adapter.capabilities.LiteralCapability.*;
 import static com.exasol.adapter.capabilities.MainCapability.*;
 import static com.exasol.adapter.capabilities.PredicateCapability.*;
-import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_INTERSECTION;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_UNION;
-
-import java.sql.SQLException;
-import java.util.*;
+import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
 
 /**
  * This class implements the SAP HANA SQL dialect.
@@ -132,13 +134,14 @@ public class SapHanaSqlDialect extends AbstractSqlDialect {
         try {
             return new SapHanaMetadataReader(this.connectionFactory.getConnection(), this.properties);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(
-                    "Unable to create HANA remote metadata reader. Caused by: " + exception.getMessage(), exception);
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-HANA-1")
+                    .message("Unable to create HANA remote metadata reader. Caused by: {{cause}}") //
+                    .unquotedParameter("cause", exception.getMessage()).toString(), exception);
         }
     }
 
     @Override
     protected QueryRewriter createQueryRewriter() {
-        return new BaseQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
+        return new ImportIntoQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
     }
 }

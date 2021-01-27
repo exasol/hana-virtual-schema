@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>hana-virtual-schema</artifactId>
@@ -11,7 +9,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
         <surefire.and.failsafe.plugin.version>3.0.0-M3</surefire.and.failsafe.plugin.version>
-        <vscjdbc.version>7.0.0</vscjdbc.version>
+        <vscjdbc.version>9.0.0</vscjdbc.version>
         <org.testcontainers.version>1.15.0</org.testcontainers.version>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
@@ -48,14 +46,12 @@
             <artifactId>virtual-schema-common-jdbc</artifactId>
             <version>${vscjdbc.version}</version>
         </dependency>
-        <!--Unit test dependencies -->
         <dependency>
             <groupId>com.exasol</groupId>
-            <artifactId>virtual-schema-common-jdbc</artifactId>
-            <version>${vscjdbc.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
+            <artifactId>error-reporting-java</artifactId>
+            <version>0.2.0</version>
         </dependency>
+        <!--Unit test dependencies -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
@@ -71,40 +67,8 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.6.0</version>
+            <version>3.7.7</version>
             <scope>test</scope>
-        </dependency>
-        <!--Integration test dependencies -->
-        <dependency>
-            <groupId>com.exasol</groupId>
-            <artifactId>exasol-testcontainers</artifactId>
-            <version>3.3.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${org.testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.exasol</groupId>
-            <artifactId>test-db-builder-java</artifactId>
-            <version>2.0.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.exasol</groupId>
-            <artifactId>hamcrest-resultset-matcher</artifactId>
-            <version>1.2.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>org.jacoco.agent</artifactId>
-            <groupId>org.jacoco</groupId>
-            <version>0.8.5</version>
-            <classifier>runtime</classifier>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <build>
@@ -131,47 +95,11 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>prepare-agent-integration</id>
-                        <goals>
-                            <goal>prepare-agent-integration</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>report</id>
                         <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
-                    </execution>
-
-                    <execution>
-                        <id>merge-it-results</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>merge</goal>
-                        </goals>
-                        <configuration>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}/</directory>
-                                    <includes>
-                                        <include>jacoco-it.exec</include>
-                                        <include>jacoco-udf.exec</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <destFile>${project.build.directory}/aggregate-it.exec</destFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>report-integration-with-udf</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report-integration</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/aggregate-it.exec</dataFile>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -192,7 +120,7 @@
                     <descriptors>
                         <descriptor>src/assembly/all-dependencies.xml</descriptor>
                     </descriptors>
-                    <finalName>virtual-schema-dist-${vscjdbc.version}-hana-${version}</finalName>
+                    <finalName>virtual-schema-dist-${vscjdbc.version}-hana-${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -201,27 +129,6 @@
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${surefire.and.failsafe.plugin.version}</version>
-                <configuration>
-                    <!-- Set the highest log level for coverage testing, so that we have
-                        a chance to reach branches <property> in the logging lambdas too. -->
-                    <argLine>-Djava.util.logging.config.file=src/test/resources/logging.properties ${argLine}</argLine>
-                    <systemPropertyVariables>
-                        <test.coverage>true</test.coverage>
-                    </systemPropertyVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -296,7 +203,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>0.4.1</version>
+                <version>0.4.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -307,8 +214,6 @@
                 <configuration>
                     <modules>
                         <module>jar_artifact</module>
-                        <module>integration_tests</module>
-                        <module>udf_coverage</module>
                     </modules>
                 </configuration>
             </plugin>
