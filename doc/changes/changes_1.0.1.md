@@ -11,7 +11,9 @@ This release includes the following changes from the updated common libraries:
 
 ## Refactoring
 
-* #8: Updated to the latest `virtual-schema-common-jdbc`.
+* #18: Updated to the latest `virtual-schema-common-jdbc`.
+* #13: Changed the deprecated ${version} property to ${project.version}.
+* #11: Added ExaError builder.
 
 ## Dependence Updates
 
