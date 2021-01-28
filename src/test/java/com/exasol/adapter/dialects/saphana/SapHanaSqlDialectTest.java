@@ -2,7 +2,9 @@ package com.exasol.adapter.dialects.saphana;
 
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.rewriting.ImportIntoQueryRewriter;
 import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.adapter.jdbc.RemoteMetadataReaderException;
 import com.exasol.adapter.sql.ScalarFunction;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +27,13 @@ import static com.exasol.adapter.capabilities.PredicateCapability.*;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_INTERSECTION;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_UNION;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,7 +122,7 @@ class SapHanaSqlDialectTest {
                 Matchers.equalTo(SqlDialect.NullSorting.NULLS_SORTED_AT_START));
     }
 
-    @CsvSource({"tableName, \"tableName\"", //
+    @CsvSource({ "tableName, \"tableName\"", //
             "\"tableName, \"\"\"tableName\"" //
     })
     @ParameterizedTest
@@ -126,7 +130,7 @@ class SapHanaSqlDialectTest {
         assertThat(this.dialect.applyQuote(unquoted), Matchers.equalTo(quoted));
     }
 
-    @ValueSource(strings = {"ab:'ab'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''"})
+    @ValueSource(strings = { "ab:'ab'", "a'b:'a''b'", "a''b:'a''''b'", "'ab':'''ab'''" })
     @ParameterizedTest
     void testGetLiteralString(final String definition) {
         assertThat(this.dialect.getStringLiteral(definition.substring(0, definition.indexOf(':'))),
@@ -141,8 +145,15 @@ class SapHanaSqlDialectTest {
     @Test
     void testMetadataReaderClass(@Mock final Connection connectionMock) throws SQLException {
         when(this.connectionFactoryMock.getConnection()).thenReturn(connectionMock);
-        assertThat(this.dialect.createRemoteMetadataReader(),
-                instanceOf(SapHanaMetadataReader.class));
+        assertThat(this.dialect.createRemoteMetadataReader(), instanceOf(SapHanaMetadataReader.class));
+    }
+
+    @Test
+    void testCreateRemoteMetadataReaderThrowsException() throws SQLException {
+        when(this.connectionFactoryMock.getConnection()).thenThrow(new SQLException("Message"));
+        final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
+                () -> this.dialect.createRemoteMetadataReader());
+        assertThat(exception.getMessage(), containsString("E-VS-HANA-1"));
     }
 
     @Test
@@ -172,5 +183,10 @@ class SapHanaSqlDialectTest {
                         Matchers.equalTo("BITSET")), //
                 () -> assertThat(this.dialect.getScalarFunctionAliases().get(ScalarFunction.BIT_XOR),
                         Matchers.equalTo("BITXOR")));
+    }
+
+    @Test
+    void testCreateQueryRewriter() {
+        assertThat(this.dialect.createQueryRewriter(), instanceOf(ImportIntoQueryRewriter.class));
     }
 }
