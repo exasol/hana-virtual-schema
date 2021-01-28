@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>hana-virtual-schema</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>Virtual Schema for SAP Hana</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>error-reporting-java</artifactId>
-            <version>0.2.0</version>
+            <version>0.2.2</version>
         </dependency>
         <!--Unit test dependencies -->
         <dependency>

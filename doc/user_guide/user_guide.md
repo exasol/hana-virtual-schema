@@ -1,6 +1,6 @@
-# SAP HANA SQL Dialect
+# Hana SQL Dialect User Guide
 
-The SAP HANA SQL dialect allows you to access [HANA](https://www.sap.com/products/hana.html) databases via Virtual Schemas.
+The Hana SQL dialect allows you to access [Hana](https://www.sap.com/products/hana.html) databases via Virtual Schemas.
 
 ## Registering the JDBC Driver in EXAOperation
 
@@ -34,7 +34,7 @@ This step is necessary since the UDF container the adapter runs in has no access
 
 ## Installing the Adapter Script
 
-Upload the latest available release of [Virtual Schema JDBC Adapter](https://github.com/exasol/virtual-schemas/releases) to Bucket FS.
+Upload the latest available release of [Hana Virtual Schema](https://github.com/exasol/hana-virtual-schema/releases) to Bucket FS.
 
 Then create a schema to hold the adapter script.
 
@@ -47,7 +47,7 @@ The SQL statement below creates the adapter script, defines the Java class that 
 ```sql
 CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
      %scriptclass com.exasol.adapter.RequestDispatcher;
-     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-7.0.0-bundle-4.0.4.jar;
+     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-9.0.0-hana-1.0.1.jar;
      %jar /buckets/<BFS service>/<bucket>/ngdbc-<JDBC driver version>.jar;
 /
 ;
@@ -56,7 +56,7 @@ CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
 ## Defining a Named Connection
     
 ```sql
-CREATE OR REPLACE CONNECTION SAPHANA_CONNECTION 
+CREATE OR REPLACE CONNECTION HANA_CONNECTION 
 TO 'jdbc:sap://<HANA host or IP address>:<port>' 
 USER '<user>' 
 IDENTIFIED BY '<password>';
@@ -64,28 +64,22 @@ IDENTIFIED BY '<password>';
 
 ## Creating a Virtual Schema
 
-Below you see how a SAP HANA Virtual Schema is created. Please note that you have to provide the name of the database in the property `SCHEMA_NAME`.
+Below you see how a Hana Virtual Schema is created. Please note that you have to provide the name of the database in the property `SCHEMA_NAME`.
 
 ```sql
 CREATE VIRTUAL SCHEMA <virtual schema name>
     USING ADAPTER.JDBC_ADAPTER 
     WITH
     SQL_DIALECT = 'SAPHANA'
-    CONNECTION_NAME = 'SAPHANA_CONNECTION'
+    CONNECTION_NAME = 'HANA_CONNECTION'
     SCHEMA_NAME = '<schema name>';
 ```
-If you want to use [logging](../development/remote_logging.md), please, add additional parameters:
-    
-```sql
-    DEBUG_ADDRESS = '<debug listener host or IP address>:<port>'
-    LOG_LEVEL = 'FINE' 
-``` 
     
 ## Known Issues
 
 ### Unsupported Column Types
 
-The following column types are not supported by this dialect:
+The following column types are not supported:
 
 * `ARRAY`
 * `BLOB`
@@ -97,9 +91,9 @@ The following column types are not supported by this dialect:
 
 ### Unparameterized Column Type `DECIMAL`
 
-In HANA you are allowed to create columns of type `DECIMAL` without parameterizing them. I.e. you can skip the part in the brackets.
+In Hana you are allowed to create columns of type `DECIMAL` without parameterizing them. I.e. you can skip the part in the brackets.
 
-What the Virtual Schemas get from the HANA JDBC driver as column metadata is a column of precision 34 and scale 0. So in theory this column's values should behave like a 34-digit integer number. Tests that we conducted with a SQL editor though show that the values can have fractional digits. In fact values of this column type behave like floating point numbers.
+What the Virtual Schemas get from the Hana JDBC driver as column metadata is a column of precision 34 and scale 0. So in theory this column's values should behave like a 34-digit integer number. Tests that we conducted with a SQL editor though show that the values can have fractional digits. In fact values of this column type behave like floating point numbers.
 
 Unfortunately we can't tell the metadata of columns defined with `DECIMAL` and `DECIMAL(34,0)` appart even though they behave differently.
 
@@ -115,3 +109,9 @@ Also here the only solution is to not use it in conjunction with a Virtual Schem
 
 The type `TIME` always comes to Virtual Schema as a  `TIMESTAMP` data type therefore it has not only time, but also date.
 For now it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
+
+## Testing information
+
+| Virtual Schema Version | Hana Version                       | Driver Name and Version |
+|------------------------|------------------------------------|-------------------------|
+| 1.0.1                  | hanaexpress:2.00.045.00.20200121.1 | ngdbc-2.4.56.jar        |
