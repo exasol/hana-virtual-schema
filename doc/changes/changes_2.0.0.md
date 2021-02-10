@@ -1,4 +1,4 @@
-# Virtual Schema for SAP Hana 2.0.0, released 2021-02-??
+# Virtual Schema for SAP Hana 2.0.0, released 2021-02-10
 
 Code name: Removed SQL_DIALECT property, fixed String datatypes mapping and mapping for literal boolean
 
