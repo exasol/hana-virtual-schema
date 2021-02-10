@@ -47,7 +47,7 @@ The SQL statement below creates the adapter script, defines the Java class that 
 ```sql
 CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
      %scriptclass com.exasol.adapter.RequestDispatcher;
-     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-9.0.0-hana-1.0.2.jar;
+     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-9.0.1-hana-2.0.0.jar;
      %jar /buckets/<BFS service>/<bucket>/ngdbc-<JDBC driver version>.jar;
 /
 ;
@@ -70,24 +70,41 @@ Below you see how a Hana Virtual Schema is created. Please note that you have to
 CREATE VIRTUAL SCHEMA <virtual schema name>
     USING ADAPTER.JDBC_ADAPTER 
     WITH
-    SQL_DIALECT = 'SAPHANA'
     CONNECTION_NAME = 'HANA_CONNECTION'
     SCHEMA_NAME = '<schema name>';
 ```
-    
+
+## Data Types Conversion
+
+| Hana Data Type | Supported | Converted Exasol Data Type | Known limitations
+|----------------|---------- |----------------------------|-------------------
+| ALPHANUM       | ✓         | VARCHAR UTF-8              |
+| ARRAY          | ×         |                            |
+| BIGINT         | ✓         | DECIMAL(19,0)              |
+| BLOB           | ×         |                            |
+| BOOLEAN        | ✓         | BOOLEAN                    |
+| CLOB           | ×         |                            |
+| DATE           | ✓         | DATE                       |
+| DECIMAL        | ✓         | DECIMAL                    |
+| DOUBLE         | ✓         | DOUBLE PRECISION           |
+| INTEGER        | ✓         | DECIMAL(10,0)              |
+| NCLOB          | ×         |                            |
+| NVARCHAR       | ✓         | VARCHAR UTF-8              |
+| REAL           | ✓         | DOUBLE PRECISION           |
+| SECONDDATE     | ✓         | TIMESTAMP                  |
+| SHORTTEXT      | ✓         | VARCHAR ASCII              |
+| SMALLDECIMAL   | ✓         | DECIMAL                    |
+| SMALLINT       | ✓         | DECIMAL(5,0)               |
+| ST_GEOMETRY    | ×         |                            |
+| ST_POINT       | ×         |                            |
+| TEXT           | ×         |                            |
+| TIME           | ✓         | VARCHAR(100)               |
+| TIMESTAMP      | ✓         | TIMESTAMP                  |
+| TINYINT        | ✓         | DECIMAL(3.0)               |
+| VARBINARY      | ×         |                            |
+| VARCHAR        | ✓         | VARCHAR ASCII              |
+
 ## Known Issues
-
-### Unsupported Column Types
-
-The following column types are not supported:
-
-* `ARRAY`
-* `BLOB`
-* `NCLOB`
-* `ST_GEOMETRY`
-* `ST_POINT`
-* `TEXT`
-* `VARBINARY`
 
 ### Unparameterized Column Type `DECIMAL`
 
@@ -95,7 +112,7 @@ In Hana you are allowed to create columns of type `DECIMAL` without parameterizi
 
 What the Virtual Schemas get from the Hana JDBC driver as column metadata is a column of precision 34 and scale 0. So in theory this column's values should behave like a 34-digit integer number. Tests that we conducted with a SQL editor though show that the values can have fractional digits. In fact values of this column type behave like floating point numbers.
 
-Unfortunately we can't tell the metadata of columns defined with `DECIMAL` and `DECIMAL(34,0)` appart even though they behave differently.
+Unfortunately we can't tell the metadata of columns defined with `DECIMAL` and `DECIMAL(34,0)` apart even though they behave differently.
 
 To fix this, don't define any columns that you plan to use via a Virtual Schema with unparameterized type `DECIMAL`.
 
@@ -107,8 +124,8 @@ Also here the only solution is to not use it in conjunction with a Virtual Schem
 
 ### Column Type `TIME`
 
-The type `TIME` always comes to Virtual Schema as a  `TIMESTAMP` data type therefore it has not only time, but also date.
-For now it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
+The type `TIME` always comes to Virtual Schema as a `TIMESTAMP` data type therefore it has not only time, but also date.
+For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
 
 ## Testing information
 

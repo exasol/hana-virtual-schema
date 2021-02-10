@@ -1,11 +1,25 @@
 package com.exasol.adapter.dialects.saphana;
 
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.dialects.rewriting.ImportIntoQueryRewriter;
-import com.exasol.adapter.jdbc.ConnectionFactory;
-import com.exasol.adapter.jdbc.RemoteMetadataReaderException;
-import com.exasol.adapter.sql.ScalarFunction;
+import static com.exasol.adapter.AdapterProperties.*;
+import static com.exasol.adapter.capabilities.AggregateFunctionCapability.*;
+import static com.exasol.adapter.capabilities.LiteralCapability.*;
+import static com.exasol.adapter.capabilities.MainCapability.*;
+import static com.exasol.adapter.capabilities.PredicateCapability.*;
+import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
+import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_INTERSECTION;
+import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_UNION;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,25 +30,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import static com.exasol.adapter.AdapterProperties.*;
-import static com.exasol.adapter.capabilities.AggregateFunctionCapability.*;
-import static com.exasol.adapter.capabilities.LiteralCapability.*;
-import static com.exasol.adapter.capabilities.MainCapability.*;
-import static com.exasol.adapter.capabilities.PredicateCapability.*;
-import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_INTERSECTION;
-import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_UNION;
-import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.SqlDialect;
+import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
+import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.adapter.jdbc.RemoteMetadataReaderException;
+import com.exasol.adapter.sql.ScalarFunction;
 
 @ExtendWith(MockitoExtension.class)
 class SapHanaSqlDialectTest {
@@ -159,9 +160,9 @@ class SapHanaSqlDialectTest {
     @Test
     void testGetSupportedProperties() {
         assertThat(this.dialect.getSupportedProperties(),
-                containsInAnyOrder(SQL_DIALECT_PROPERTY, CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY,
-                        SCHEMA_NAME_PROPERTY, TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY,
-                        DEBUG_ADDRESS_PROPERTY, LOG_LEVEL_PROPERTY));
+                containsInAnyOrder(CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY,
+                        TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
+                        LOG_LEVEL_PROPERTY));
     }
 
     @Test
@@ -187,6 +188,6 @@ class SapHanaSqlDialectTest {
 
     @Test
     void testCreateQueryRewriter() {
-        assertThat(this.dialect.createQueryRewriter(), instanceOf(ImportIntoQueryRewriter.class));
+        assertThat(this.dialect.createQueryRewriter(), instanceOf(ImportIntoTemporaryTableQueryRewriter.class));
     }
 }

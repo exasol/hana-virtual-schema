@@ -1,26 +1,26 @@
 package com.exasol.adapter.dialects.saphana;
 
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.capabilities.Capabilities;
-import com.exasol.adapter.dialects.*;
-import com.exasol.adapter.dialects.rewriting.ImportIntoQueryRewriter;
-import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
-import com.exasol.adapter.jdbc.*;
-import com.exasol.adapter.sql.ScalarFunction;
-import com.exasol.errorreporting.ExaError;
-
-import java.sql.SQLException;
-import java.util.*;
-
 import static com.exasol.adapter.AdapterProperties.CATALOG_NAME_PROPERTY;
 import static com.exasol.adapter.AdapterProperties.SCHEMA_NAME_PROPERTY;
 import static com.exasol.adapter.capabilities.AggregateFunctionCapability.*;
 import static com.exasol.adapter.capabilities.LiteralCapability.*;
 import static com.exasol.adapter.capabilities.MainCapability.*;
 import static com.exasol.adapter.capabilities.PredicateCapability.*;
+import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_INTERSECTION;
 import static com.exasol.adapter.capabilities.ScalarFunctionCapability.ST_UNION;
-import static com.exasol.adapter.capabilities.ScalarFunctionCapability.*;
+
+import java.sql.SQLException;
+import java.util.*;
+
+import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.capabilities.Capabilities;
+import com.exasol.adapter.dialects.*;
+import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
+import com.exasol.adapter.dialects.rewriting.SqlGenerationContext;
+import com.exasol.adapter.jdbc.*;
+import com.exasol.adapter.sql.ScalarFunction;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * This class implements the SAP HANA SQL dialect.
@@ -141,11 +141,11 @@ public class SapHanaSqlDialect extends AbstractSqlDialect {
 
     @Override
     protected QueryRewriter createQueryRewriter() {
-        return new ImportIntoQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
+        return new ImportIntoTemporaryTableQueryRewriter(this, createRemoteMetadataReader(), this.connectionFactory);
     }
 
     @Override
-    public SqlGenerator getSqlGenerator(SqlGenerationContext context) {
+    public SqlGenerator getSqlGenerator(final SqlGenerationContext context) {
         return new HanaSqlGenerator(this, context);
     }
 }
