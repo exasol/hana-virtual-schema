@@ -1,4 +1,4 @@
-# Virtual Schema for SAP Hana 2.0.1, released 2021-11-25
+# Virtual Schema for SAP Hana 2.0.1, released 2021-11-24
 
 Code name: Dependency updates
 
