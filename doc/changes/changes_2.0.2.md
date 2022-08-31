@@ -1,4 +1,4 @@
-# Virtual Schema for SAP Hana 2.0.2, released 2022-08-31
+# Virtual Schema for SAP Hana 2.0.2, released 2022-??-??
 
 Code name: Upgrade dependencies
 
