@@ -133,7 +133,7 @@ public class SapHanaSqlDialect extends AbstractSqlDialect {
         try {
             return new SapHanaMetadataReader(this.connectionFactory.getConnection(), this.properties);
         } catch (final SQLException exception) {
-            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VS-HANA-1")
+            throw new RemoteMetadataReaderException(ExaError.messageBuilder("E-VSHANA-1")
                     .message("Unable to create HANA remote metadata reader. Caused by: {{cause|uq}}") //
                     .parameter("cause", exception.getMessage()).toString(), exception);
         }
