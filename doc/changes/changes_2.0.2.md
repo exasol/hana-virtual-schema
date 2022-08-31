@@ -12,6 +12,15 @@ This release upgrades dependencies.
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-jdbc:9.0.4` to `9.0.5`
+
+### Test Dependency Updates
+
+* Updated `org.junit.jupiter:junit-jupiter:5.8.1` to `5.9.0`
+* Updated `org.mockito:mockito-junit-jupiter:4.1.0` to `4.7.0`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:0.1.1` to `1.1.2`
