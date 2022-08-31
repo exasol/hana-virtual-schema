@@ -154,7 +154,7 @@ class SapHanaSqlDialectTest {
         when(this.connectionFactoryMock.getConnection()).thenThrow(new SQLException("Message"));
         final RemoteMetadataReaderException exception = assertThrows(RemoteMetadataReaderException.class,
                 () -> this.dialect.createRemoteMetadataReader());
-        assertThat(exception.getMessage(), containsString("E-VS-HANA-1"));
+        assertThat(exception.getMessage(), containsString("E-VSHANA-1"));
     }
 
     @Test

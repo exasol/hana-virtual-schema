@@ -1,0 +1,5 @@
+error-tags:
+  VSHANA:
+    packages:
+      - com.exasol.adapter.dialects.saphana
+    highest-index: 1
