@@ -4,6 +4,7 @@ import static com.exasol.adapter.dialects.saphana.util.IntegrationTestConstants.
 
 import java.io.FileNotFoundException;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
@@ -20,34 +21,24 @@ import com.github.dockerjava.api.model.ContainerNetwork;
 
 public class IntegrationTestSetup implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
+    public final static String HANA_SCHEMA = "HANA_SOURCE_SCHEMA";
 
     private final HanaContainer<?> hanaContainer;
     private final ExasolContainer<?> exasolContainer;
-
     private final Connection exasolConnection;
-
-    private final Statement exasolStatement;
-
     private final Connection hanaConnection;
-
-    private final Statement hanaStatement;
-
     private final ExasolObjectFactory exasolFactory;
-
     private final AdapterScript adapterScript;
-
     private final ConnectionDefinition connectionDefinition;
+    private int virtualSchemaCounter = 0;
 
     public IntegrationTestSetup(final HanaContainer<?> hana, final ExasolContainer<?> exasol)
             throws NoDriverFoundException, SQLException {
         this.hanaContainer = hana;
         this.exasolContainer = exasol;
-
         this.exasolConnection = this.exasolContainer.createConnection("");
-        this.exasolStatement = this.exasolConnection.createStatement();
         this.hanaConnection = DriverManager.getConnection(this.hanaContainer.getJdbcUrl(), hanaContainer.getUsername(),
                 hanaContainer.getPassword());
-        this.hanaStatement = this.hanaConnection.createStatement();
         final ExasolObjectConfiguration.Builder builder = ExasolObjectConfiguration.builder();
         final UdfTestSetup udfTestSetup = new UdfTestSetup(getTestHostIpFromInsideExasol(),
                 this.exasolContainer.getDefaultBucket(), this.exasolConnection);
@@ -117,12 +108,45 @@ public class IntegrationTestSetup implements AutoCloseable {
         return schema.createAdapterScript(ADAPTER_SCRIPT_EXASOL, AdapterScript.Language.JAVA, content);
     }
 
+    public VirtualSchema createVirtualSchema() {
+        final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", HANA_SCHEMA));
+        properties.putAll(Map.of("DEBUG_ADDRESS", "192.168.56.7", "LOG_LEVEL", "ALL"));
+        return this.exasolFactory.createVirtualSchemaBuilder("HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++))
+                .adapterScript(this.adapterScript).connectionDefinition(this.connectionDefinition)
+                .sourceSchemaName(HANA_SCHEMA).properties(properties).build();
+    }
+
+    public void clean() {
+        executeInHana("DROP SCHEMA " + HANA_SCHEMA + " CASCADE");
+        executeInHana("CREATE SCHEMA " + HANA_SCHEMA);
+    }
+
+    public ResultSet executeInHana(final String statement) {
+        return execute(hanaConnection, statement);
+    }
+
+    public ResultSet executeInExasol(final String statement) {
+        return execute(exasolConnection, statement);
+    }
+
+    private static ResultSet execute(final Connection connection, final String statement) {
+        try {
+            final Statement stmt = connection.createStatement();
+            if (stmt.execute(statement)) {
+                return stmt.getResultSet();
+            } else {
+                return null;
+            }
+        } catch (final SQLException exception) {
+            throw new IllegalStateException("Failed to execute statement '" + statement + "'", exception);
+        }
+    }
+
     @Override
     public void close() throws SQLException {
-        hanaConnection.close();
         exasolConnection.close();
-
-        hanaContainer.close();
+        hanaConnection.close();
         exasolContainer.close();
+        hanaContainer.close();
     }
 }

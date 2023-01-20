@@ -18,6 +18,7 @@ Code name:
 ### Test Dependency Updates
 
 * Added `com.exasol:exasol-testcontainers:6.5.0`
+* Added `com.exasol:hamcrest-resultset-matcher:1.5.2`
 * Added `com.exasol:test-db-builder-java:3.4.2`
 * Added `com.exasol:udf-debugging-java:0.6.7`
 * Added `com.sap.cloud.db.jdbc:ngdbc:2.15.10`

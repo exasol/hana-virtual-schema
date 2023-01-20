@@ -117,9 +117,7 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
      */
     @Override
     public String getJdbcUrl() {
-        final String url = "jdbc:sap://" + getHost() + ":" + getSystemPort() + "/";
-        System.out.println("URL: " + url);
-        return url;
+        return "jdbc:sap://" + getHost() + ":" + getSystemPort() + "/";
     }
 
     /**
