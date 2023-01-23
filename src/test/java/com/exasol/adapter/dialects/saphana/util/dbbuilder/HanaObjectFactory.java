@@ -40,7 +40,7 @@ public final class HanaObjectFactory extends AbstractObjectFactory {
     }
 
     @Override
-    public Schema createSchema(final String name) {
+    public HanaSchema createSchema(final String name) {
         return new HanaSchema(this.writer, HanaIdentifier.of(name));
     }
 

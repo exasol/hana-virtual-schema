@@ -116,7 +116,7 @@ class HanaDialectIT {
         final VirtualSchema virtualSchema = SETUP.createVirtualSchema(hanaSchema);
         try (final ResultSet resultSet = SETUP
                 .executeInExasol("SELECT COLUMN_TYPE FROM SYS.EXA_ALL_COLUMNS WHERE COLUMN_SCHEMA = '"
-                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + table + "';")) {
+                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + table.getName() + "';")) {
             assertThat(resultSet, table("VARCHAR").matches());
         } finally {
             virtualSchema.drop();

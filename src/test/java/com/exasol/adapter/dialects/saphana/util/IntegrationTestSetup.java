@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import org.testcontainers.containers.JdbcDatabaseContainer.NoDriverFoundException;
 
 import com.exasol.adapter.dialects.saphana.util.dbbuilder.HanaObjectFactory;
+import com.exasol.adapter.dialects.saphana.util.dbbuilder.HanaSchema;
 import com.exasol.bucketfs.Bucket;
 import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.containers.ExasolContainer;
@@ -39,7 +40,7 @@ public class IntegrationTestSetup implements AutoCloseable {
             throws NoDriverFoundException, SQLException {
         this.hanaContainer = hana;
         this.exasolContainer = exasol;
-        this.exasolConnection = this.exasolContainer.createConnection("");
+        this.exasolConnection = this.createExasolConnection();
         this.hanaConnection = DriverManager.getConnection(this.hanaContainer.getJdbcUrl(), hanaContainer.getUsername(),
                 hanaContainer.getPassword());
         final ExasolObjectConfiguration.Builder builder = ExasolObjectConfiguration.builder();
@@ -120,7 +121,7 @@ public class IntegrationTestSetup implements AutoCloseable {
                 .sourceSchemaName(hanaSchema.getName()).properties(properties).build();
     }
 
-    public Schema createHanaSchema() {
+    public HanaSchema createHanaSchema() {
         final String newSchemaName = "HANA_SCHEMA_" + hanaSchemaCounter++;
         if (hanaSchemaExists(newSchemaName)) {
             executeInHana("DROP SCHEMA " + newSchemaName + " CASCADE");
@@ -172,5 +173,9 @@ public class IntegrationTestSetup implements AutoCloseable {
         hanaConnection.close();
         exasolContainer.close();
         hanaContainer.close();
+    }
+
+    public Connection createExasolConnection() throws NoDriverFoundException, SQLException {
+        return this.exasolContainer.createConnection("");
     }
 }
