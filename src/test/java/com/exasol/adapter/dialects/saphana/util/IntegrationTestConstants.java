@@ -16,8 +16,8 @@ public final class IntegrationTestConstants {
     public static final String JDBC_DRIVER_CONFIGURATION_FILE_NAME = "settings.cfg";
     public static final String JDBC_DRIVER_CONFIGURATION_FILE_CONTENT = "DRIVERNAME=HANA\n" //
             + "JAR=" + JDBC_DRIVER_NAME + "\n" //
-            + "DRIVERMAIN=com.mysql.jdbc.Driver\n" //
-            + "PREFIX=jdbc:mysql:\n" //
+            + "DRIVERMAIN=com.sap.db.jdbc.Driver\n" //
+            + "PREFIX=jdbc:sap:\n" //
             + "NOSECURITY=YES\n" //
             + "FETCHSIZE=100000\n" //
             + "INSERTSIZE=-1\n";

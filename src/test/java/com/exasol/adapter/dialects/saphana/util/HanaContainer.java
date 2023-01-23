@@ -11,6 +11,9 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
+/**
+ * A testcontaner for the SAP HANA database, based on https://github.com/testcontainers/testcontainers-java/pull/3017
+ */
 public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabaseContainer<SELF> {
 
     private static final String DB_DRIVER = "com.sap.db.jdbc.Driver";
@@ -46,31 +49,15 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
         return DB_DRIVER;
     }
 
-    /**
-     * Default database name getter. Because of HANAs two databases it will return the tenant database. If you want to
-     * get the name of the system database, use 'getSystemDatabaseName'.
-     * 
-     * @return The name of the tenant database.
-     */
     @Override
     public String getDatabaseName() {
         return getTenantDatabaseName();
     }
 
-    /**
-     * Get the name of the HANA system database.
-     * 
-     * @return The name of the HANA system database.
-     */
     public String getSystemDatabaseName() {
         return SYSTEM_DB_NAME;
     }
 
-    /**
-     * Get the name of the HANA tenant database.
-     * 
-     * @return The name of the HANA tenant database.
-     */
     public String getTenantDatabaseName() {
         return TENANT_DB_NAME;
     }
@@ -90,31 +77,16 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
         return "SELECT 1 FROM sys.dummy";
     }
 
-    /**
-     * Get the port for the system database and general connections.
-     * 
-     * @return port of the system database.
-     */
     @NotNull
     public Integer getSystemPort() {
         return getMappedPort(SYSTEM_PORT);
     }
 
-    /**
-     * Get the port for the tenant database.
-     * 
-     * @return port of the tenant database.
-     */
     @NotNull
     public Integer getTenantPort() {
         return getMappedPort(TENANT_PORT);
     }
 
-    /**
-     * Get the Jdbc url used to connect to the databases.
-     * 
-     * @return jdbc url
-     */
     @Override
     public String getJdbcUrl() {
         return "jdbc:sap://" + getHost() + ":" + getSystemPort() + "/";
@@ -128,7 +100,6 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
      * 
      * @param queryString your custom query attached to the connection string.
      * @return Connection object.
-     * 
      */
     @Override
     public Connection createConnection(String queryString) throws SQLException, NoDriverFoundException {

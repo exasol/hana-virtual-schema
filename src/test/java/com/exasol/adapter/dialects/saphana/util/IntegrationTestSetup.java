@@ -11,26 +11,29 @@ import java.util.logging.Logger;
 
 import org.testcontainers.containers.JdbcDatabaseContainer.NoDriverFoundException;
 
+import com.exasol.adapter.dialects.saphana.util.dbbuilder.HanaObjectFactory;
 import com.exasol.bucketfs.Bucket;
 import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
+import com.exasol.dbbuilder.dialects.Schema;
 import com.exasol.dbbuilder.dialects.exasol.*;
 import com.exasol.udfdebugging.UdfTestSetup;
 import com.github.dockerjava.api.model.ContainerNetwork;
 
 public class IntegrationTestSetup implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
-    public final static String HANA_SCHEMA = "HANA_SOURCE_SCHEMA";
 
     private final HanaContainer<?> hanaContainer;
     private final ExasolContainer<?> exasolContainer;
     private final Connection exasolConnection;
     private final Connection hanaConnection;
     private final ExasolObjectFactory exasolFactory;
+    private final HanaObjectFactory hanaFactory;
     private final AdapterScript adapterScript;
     private final ConnectionDefinition connectionDefinition;
     private int virtualSchemaCounter = 0;
+    private int hanaSchemaCounter = 0;
 
     public IntegrationTestSetup(final HanaContainer<?> hana, final ExasolContainer<?> exasol)
             throws NoDriverFoundException, SQLException {
@@ -44,6 +47,7 @@ public class IntegrationTestSetup implements AutoCloseable {
                 this.exasolContainer.getDefaultBucket(), this.exasolConnection);
         builder.withJvmOptions(udfTestSetup.getJvmOptions());
         this.exasolFactory = new ExasolObjectFactory(this.exasolConnection, builder.build());
+        this.hanaFactory = new HanaObjectFactory(this.hanaConnection);
         final ExasolSchema exasolSchema = this.exasolFactory.createSchema(SCHEMA_EXASOL);
 
         this.adapterScript = createAdapterScript(exasolSchema);
@@ -108,17 +112,37 @@ public class IntegrationTestSetup implements AutoCloseable {
         return schema.createAdapterScript(ADAPTER_SCRIPT_EXASOL, AdapterScript.Language.JAVA, content);
     }
 
-    public VirtualSchema createVirtualSchema() {
-        final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", HANA_SCHEMA));
+    public VirtualSchema createVirtualSchema(final Schema hanaSchema) {
+        final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", hanaSchema.getName()));
         properties.putAll(Map.of("DEBUG_ADDRESS", "192.168.56.7", "LOG_LEVEL", "ALL"));
         return this.exasolFactory.createVirtualSchemaBuilder("HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++))
                 .adapterScript(this.adapterScript).connectionDefinition(this.connectionDefinition)
-                .sourceSchemaName(HANA_SCHEMA).properties(properties).build();
+                .sourceSchemaName(hanaSchema.getName()).properties(properties).build();
     }
 
-    public void clean() {
-        executeInHana("DROP SCHEMA " + HANA_SCHEMA + " CASCADE");
-        executeInHana("CREATE SCHEMA " + HANA_SCHEMA);
+    public Schema createHanaSchema() {
+        final String newSchemaName = "HANA_SCHEMA_" + hanaSchemaCounter++;
+        if (hanaSchemaExists(newSchemaName)) {
+            executeInHana("DROP SCHEMA " + newSchemaName + " CASCADE");
+        }
+        return hanaFactory.createSchema(newSchemaName);
+    }
+
+    public void clean(final Schema hanaSchema) {
+        if (hanaSchemaExists(hanaSchema.getName())) {
+            hanaSchema.drop();
+        }
+    }
+
+    private boolean hanaSchemaExists(final String schemaName) {
+        try (ResultSet rs = executeInHana("SELECT COUNT(*) FROM SYS.SCHEMAS WHERE SCHEMA_NAME='" + schemaName + "'")) {
+            if (!rs.next()) {
+                return false;
+            }
+            return rs.getInt(1) > 0;
+        } catch (final SQLException exception) {
+            throw new IllegalStateException("Failed to check if HANA schema exists", exception);
+        }
     }
 
     public ResultSet executeInHana(final String statement) {

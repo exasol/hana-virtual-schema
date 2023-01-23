@@ -15,16 +15,22 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.adapter.dialects.saphana.util.IntegrationTestSetup;
+import com.exasol.dbbuilder.dialects.Schema;
+import com.exasol.dbbuilder.dialects.Table;
 import com.exasol.dbbuilder.dialects.exasol.VirtualSchema;
 
 @Tag("integration")
 class HanaDialectIT {
 
     static IntegrationTestSetup SETUP = IntegrationTestSetup.start();
+    private Schema hanaSchema;
 
     @BeforeEach
-    void afterEach() {
-        SETUP.clean();
+    void beforeEach() {
+        if (hanaSchema != null) {
+            SETUP.clean(hanaSchema);
+        }
+        this.hanaSchema = SETUP.createHanaSchema();
     }
 
     @AfterAll
@@ -32,18 +38,16 @@ class HanaDialectIT {
         SETUP.close();
     }
 
-    private String createSingleColumnTable(final String sourceType) {
+    private Table createSingleColumnTable(final String sourceType) {
         final String typeAsIdentifier = sourceType.replaceAll("[ ,]", "_").replaceAll("[()]", "");
-        final String tableName = "SINGLE_COLUMN_TABLE_" + typeAsIdentifier;
-        SETUP.executeInHana(
-                "CREATE TABLE " + IntegrationTestSetup.HANA_SCHEMA + "." + tableName + "(C1 " + sourceType + ")");
-        return tableName;
+        final Table table = hanaSchema.createTable("SINGLE_COLUMN_TABLE_" + typeAsIdentifier, "C1", sourceType);
+        return table;
     }
 
-    protected void assertVirtualTableContents(final String tableName, final Matcher<ResultSet> matcher) {
-        final VirtualSchema virtualSchema = SETUP.createVirtualSchema();
+    protected void assertVirtualTableContents(final Table table, final Matcher<ResultSet> matcher) {
+        final VirtualSchema virtualSchema = SETUP.createVirtualSchema(hanaSchema);
         try {
-            assertThat(selectAllFromCorrespondingVirtualTable(virtualSchema, tableName), matcher);
+            assertThat(selectAllFromCorrespondingVirtualTable(virtualSchema, table), matcher);
         } catch (final SQLException exception) {
             fail("Unable to execute assertion query. Caused by: " + exception.getMessage(), exception);
         } finally {
@@ -51,24 +55,23 @@ class HanaDialectIT {
         }
     }
 
-    private ResultSet selectAllFromCorrespondingVirtualTable(final VirtualSchema virtualSchema, final String tableName)
+    private ResultSet selectAllFromCorrespondingVirtualTable(final VirtualSchema virtualSchema, final Table table)
             throws SQLException {
-        return selectAllFrom(getVirtualTableName(virtualSchema, tableName));
+        return selectAllFrom(getVirtualTableName(virtualSchema, table));
     }
 
     private ResultSet selectAllFrom(final String tableName) throws SQLException {
         return SETUP.executeInExasol("SELECT * FROM " + tableName);
     }
 
-    private String getVirtualTableName(final VirtualSchema virtualSchema, final String tableName) {
-        return virtualSchema.getFullyQualifiedName() + ".\"" + tableName + "\"";
+    private String getVirtualTableName(final VirtualSchema virtualSchema, final Table table) {
+        return virtualSchema.getFullyQualifiedName() + ".\"" + table.getName() + "\"";
     }
 
     @Test
     void testVarcharMappingUtf8() {
-        // FIXME
-        // final Table table = createSingleColumnTable("NVARCHAR(20)").insert("Hello world!").insert("Grüße!");
-        // assertVirtualTableContents(table, table("VARCHAR").row("Hello world!").row("Grüße!").matches());
+        final Table table = createSingleColumnTable("NVARCHAR(20)").insert("Hello world!").insert("Grüße!");
+        assertVirtualTableContents(table, table("VARCHAR").row("Hello world!").row("Grüße!").matches());
     }
 
     /**
@@ -95,11 +98,11 @@ class HanaDialectIT {
             "ALPHANUM(10); VARCHAR(10) ASCII", //
             "SHORTTEXT(30); VARCHAR(30) UTF8" })
     void testDatatypeMapping(final String hanaType, final String expectedExasolType) throws SQLException {
-        final String tableName = createSingleColumnTable(hanaType);
-        final VirtualSchema virtualSchema = SETUP.createVirtualSchema();
+        final Table table = createSingleColumnTable(hanaType);
+        final VirtualSchema virtualSchema = SETUP.createVirtualSchema(hanaSchema);
         try (final ResultSet resultSet = SETUP
                 .executeInExasol("SELECT COLUMN_TYPE FROM SYS.EXA_ALL_COLUMNS WHERE COLUMN_SCHEMA = '"
-                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + tableName + "';")) {
+                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + table.getName() + "';")) {
             assertThat(resultSet, table().row(expectedExasolType).matches());
         } finally {
             virtualSchema.drop();
@@ -109,11 +112,11 @@ class HanaDialectIT {
     @ParameterizedTest
     @ValueSource(strings = { "VARBINARY", "BLOB", "CLOB", "NCLOB", "INTEGER ARRAY", "TEXT", "ST_GEOMETRY", "ST_POINT" })
     void testUnsupportedDatatypeMapping(final String hanaType) throws SQLException {
-        final String tableName = createSingleColumnTable(hanaType);
-        final VirtualSchema virtualSchema = SETUP.createVirtualSchema();
+        final Table table = createSingleColumnTable(hanaType);
+        final VirtualSchema virtualSchema = SETUP.createVirtualSchema(hanaSchema);
         try (final ResultSet resultSet = SETUP
                 .executeInExasol("SELECT COLUMN_TYPE FROM SYS.EXA_ALL_COLUMNS WHERE COLUMN_SCHEMA = '"
-                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + tableName + "';")) {
+                        + virtualSchema.getName() + "' AND COLUMN_TABLE = '" + table + "';")) {
             assertThat(resultSet, table("VARCHAR").matches());
         } finally {
             virtualSchema.drop();
