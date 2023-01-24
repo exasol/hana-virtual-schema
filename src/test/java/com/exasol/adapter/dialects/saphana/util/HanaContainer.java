@@ -41,7 +41,7 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
 
     @Override
     protected void waitUntilContainerStarted() {
-        // super.waitUntilContainerStarted();
+        // Default behavior is to wait until a DB connection can be established. Checking the log is more reliable.
         getWaitStrategy().waitUntilReady(this);
     }
 
