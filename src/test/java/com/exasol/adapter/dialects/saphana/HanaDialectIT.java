@@ -21,8 +21,13 @@ import com.exasol.dbbuilder.dialects.exasol.VirtualSchema;
 @Tag("integration")
 class HanaDialectIT {
 
-    static IntegrationTestSetup SETUP = IntegrationTestSetup.start();
+    static IntegrationTestSetup SETUP;
     private Schema hanaSchema;
+
+    @BeforeAll
+    static void initializeSetup() {
+        SETUP = IntegrationTestSetup.start();
+    }
 
     @BeforeEach
     void beforeEach() {
@@ -34,7 +39,9 @@ class HanaDialectIT {
 
     @AfterAll
     static void afterAll() throws SQLException {
-        SETUP.close();
+        if (SETUP != null) {
+            SETUP.close();
+        }
     }
 
     private Table createSingleColumnTable(final String sourceType) {
