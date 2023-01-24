@@ -4,8 +4,7 @@ import static com.exasol.adapter.dialects.saphana.util.IntegrationTestConstants.
 
 import java.io.FileNotFoundException;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -115,10 +114,19 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     public VirtualSchema createVirtualSchema(final Schema hanaSchema) {
         final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", hanaSchema.getName()));
-        properties.putAll(Map.of("DEBUG_ADDRESS", "192.168.56.7", "LOG_LEVEL", "ALL"));
+        properties.putAll(debugProperties());
         return this.exasolFactory.createVirtualSchemaBuilder("HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++))
                 .adapterScript(this.adapterScript).connectionDefinition(this.connectionDefinition)
                 .sourceSchemaName(hanaSchema.getName()).properties(properties).build();
+    }
+
+    private Map<String, String> debugProperties() {
+        final String debugAddress = System.getProperty("com.exasol.virtualschema.debug.address");
+        if (debugAddress == null) {
+            return Collections.emptyMap();
+        }
+        final String logLevel = System.getProperty("com.exasol.virtualschema.debug.level");
+        return Map.of("DEBUG_ADDRESS", debugAddress, "LOG_LEVEL", (logLevel != null ? logLevel : "ALL"));
     }
 
     public HanaSchema createHanaSchema() {
