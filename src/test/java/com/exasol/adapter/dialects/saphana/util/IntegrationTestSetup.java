@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 import org.testcontainers.containers.JdbcDatabaseContainer.NoDriverFoundException;
 
@@ -22,8 +21,6 @@ import com.exasol.udfdebugging.UdfTestSetup;
 import com.github.dockerjava.api.model.ContainerNetwork;
 
 public class IntegrationTestSetup implements AutoCloseable {
-    private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
-
     private final HanaContainer<?> hanaContainer;
     private final ExasolContainer<?> exasolContainer;
     private final Connection exasolConnection;
@@ -42,11 +39,7 @@ public class IntegrationTestSetup implements AutoCloseable {
         this.exasolConnection = this.createExasolConnection();
         this.hanaConnection = DriverManager.getConnection(this.hanaContainer.getJdbcUrl(), hanaContainer.getUsername(),
                 hanaContainer.getPassword());
-        final ExasolObjectConfiguration.Builder builder = ExasolObjectConfiguration.builder();
-        final UdfTestSetup udfTestSetup = new UdfTestSetup(getTestHostIpFromInsideExasol(),
-                this.exasolContainer.getDefaultBucket(), this.exasolConnection);
-        builder.withJvmOptions(udfTestSetup.getJvmOptions());
-        this.exasolFactory = new ExasolObjectFactory(this.exasolConnection, builder.build());
+        this.exasolFactory = createExasolObjectFactory();
         this.hanaFactory = new HanaObjectFactory(this.hanaConnection);
         final ExasolSchema exasolSchema = this.exasolFactory.createSchema(SCHEMA_EXASOL);
 
@@ -57,15 +50,22 @@ public class IntegrationTestSetup implements AutoCloseable {
                 this.hanaContainer.getUsername(), this.hanaContainer.getPassword());
     }
 
+    private ExasolObjectFactory createExasolObjectFactory() {
+        final ExasolObjectConfiguration.Builder builder = ExasolObjectConfiguration.builder();
+        final UdfTestSetup udfTestSetup = new UdfTestSetup(getTestHostIpFromInsideExasol(),
+                this.exasolContainer.getDefaultBucket(), this.exasolConnection);
+        builder.withJvmOptions(udfTestSetup.getJvmOptions());
+        return new ExasolObjectFactory(this.exasolConnection, builder.build());
+    }
+
     public static IntegrationTestSetup start() {
-        final HanaContainer<?> hana = new HanaContainer<>("saplabs/hanaexpress:2.00.061.00.20220519.1").withReuse(true);
-        final ExasolContainer<?> exasol = new ExasolContainer<>("7.1.17")
-                .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF).withReuse(true);
+        final HanaContainer<?> hana = new HanaContainer<>(HANA_CONTAINER_VERSION).withReuse(true);
+        final ExasolContainer<?> exasol = new ExasolContainer<>(EXASOL_CONTAINER_VERSION).withReuse(true)
+                .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF);
         hana.start();
         exasol.start();
-        final Bucket bucket = exasol.getDefaultBucket();
-        uploadDriverToBucket(bucket);
-        uploadVsJarToBucket(bucket);
+        uploadDriverToBucket(exasol.getDefaultBucket());
+        uploadVsJarToBucket(exasol.getDefaultBucket());
         try {
             return new IntegrationTestSetup(hana, exasol);
         } catch (NoDriverFoundException | SQLException exception) {
@@ -144,7 +144,8 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     private boolean hanaSchemaExists(final String schemaName) {
-        try (ResultSet rs = executeInHana("SELECT COUNT(*) FROM SYS.SCHEMAS WHERE SCHEMA_NAME='" + schemaName + "'")) {
+        try (ResultSet rs = executeInHana(
+                "SELECT COUNT(1) FROM SYS.SCHEMAS WHERE SCHEMA_NAME='" + schemaName + "' LIMIT 1")) {
             if (!rs.next()) {
                 return false;
             }

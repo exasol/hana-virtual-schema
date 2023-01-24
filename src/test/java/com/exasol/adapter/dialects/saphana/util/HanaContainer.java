@@ -26,8 +26,8 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
     private static final String USERNAME = "SYSTEM";
     private static final String PASSWORD = "HXEHana1";
 
-    public HanaContainer(final String image) {
-        super(DockerImageName.parse(image));
+    public HanaContainer(final String imageVersion) {
+        super(DockerImageName.parse("saplabs/hanaexpress:" + imageVersion));
         addExposedPorts(SYSTEM_PORT, TENANT_PORT);
         this.withCommand("--master-password " + PASSWORD + " --agree-to-sap-license");
         this.waitStrategy = new LogMessageWaitStrategy().withRegEx(".*Startup finished!*\\s").withTimes(1)
@@ -41,6 +41,7 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
 
     @Override
     protected void waitUntilContainerStarted() {
+        // super.waitUntilContainerStarted();
         getWaitStrategy().waitUntilReady(this);
     }
 
@@ -96,25 +97,26 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
      * Modification of the default connection string because of HANA specific database selection.
      * 
      * Query will connect to the tenant database per default. If you want to connect to the system database, supply
-     * '?databaseName=SYSTEMDB' as queryString
+     * {@code ?databaseName=SYSTEMDB} as queryString
      * 
-     * @param queryString your custom query attached to the connection string.
-     * @return Connection object.
+     * @param queryString your custom query attached to the connection string
+     * @return Connection object
      */
     @Override
     public Connection createConnection(String queryString) throws SQLException, NoDriverFoundException {
-
-        if (queryString == null || queryString.trim().isEmpty()) {
+        if (queryString == null || queryString.isBlank()) {
             queryString = "?databaseName=" + TENANT_DB_NAME;
         } else {
-            // Remove ? from queryString if supplied.
-            if (Character.compare(queryString.charAt(0), '?') == 0) {
-                queryString = queryString.substring(1);
-            }
-            queryString = "?databaseName=" + TENANT_DB_NAME + "&" + queryString;
+            queryString = "?databaseName=" + TENANT_DB_NAME + "&" + removeLeadingQuestionMark(queryString);
         }
-
         return super.createConnection(queryString);
+    }
+
+    private String removeLeadingQuestionMark(String queryString) {
+        if (Character.compare(queryString.charAt(0), '?') == 0) {
+            queryString = queryString.substring(1);
+        }
+        return queryString;
     }
 
     @Override
