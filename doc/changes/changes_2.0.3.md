@@ -21,6 +21,7 @@ Code name:
 * Added `com.exasol:hamcrest-resultset-matcher:1.5.2`
 * Added `com.exasol:test-db-builder-java:3.4.2`
 * Added `com.exasol:udf-debugging-java:0.6.7`
+* Added `com.exasol:virtual-schema-shared-integration-tests:2.2.3`
 * Added `com.sap.cloud.db.jdbc:ngdbc:2.15.10`
 * Updated `org.junit.jupiter:junit-jupiter:5.8.1` to `5.9.2`
 * Updated `org.mockito:mockito-junit-jupiter:4.1.0` to `5.0.0`
