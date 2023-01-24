@@ -162,7 +162,7 @@ class SapHanaSqlDialectTest {
         assertThat(this.dialect.getSupportedProperties(),
                 containsInAnyOrder(CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY,
                         TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
-                        LOG_LEVEL_PROPERTY));
+                        LOG_LEVEL_PROPERTY, "IMPORT_DATA_TYPES"));
     }
 
     @Test
