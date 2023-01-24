@@ -4,7 +4,6 @@ import static com.exasol.matcher.ResultSetStructureMatcher.table;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,14 +33,13 @@ class HanaDialectIT {
     }
 
     @AfterAll
-    static void afterAll() throws IOException, SQLException {
+    static void afterAll() throws SQLException {
         SETUP.close();
     }
 
     private Table createSingleColumnTable(final String sourceType) {
         final String typeAsIdentifier = sourceType.replaceAll("[ ,]", "_").replaceAll("[()]", "");
-        final Table table = hanaSchema.createTable("SINGLE_COLUMN_TABLE_" + typeAsIdentifier, "C1", sourceType);
-        return table;
+        return hanaSchema.createTable("SINGLE_COLUMN_TABLE_" + typeAsIdentifier, "C1", sourceType);
     }
 
     protected void assertVirtualTableContents(final Table table, final Matcher<ResultSet> matcher) {
@@ -88,13 +86,15 @@ class HanaDialectIT {
             "BIGINT; DECIMAL(19,0)", //
             "SMALLDECIMAL; DECIMAL(16,0)", //
             "DECIMAL(10,2); DECIMAL(10,2)", //
-            "DECIMAL(38,2); DECIMAL(38,2)", //
-            "DECIMAL; DECIMAL(34,0)", "REAL; DOUBLE", //
+            "DECIMAL(38,2); VARCHAR(2000000) UTF8", // max. DECIMAL size in Exasol is 36
+            "DECIMAL(36,2); DECIMAL(36,2)", //
+            "DECIMAL; DECIMAL(34,0)", //
+            "REAL; DOUBLE", //
             "DOUBLE; DOUBLE", //
             "BOOLEAN; BOOLEAN", //
             "FLOAT(40); DOUBLE", //
             "VARCHAR(20); VARCHAR(20) ASCII", //
-            "NVARCHAR(20); VARCHAR(20) ASCII", // wrong
+            "NVARCHAR(20); VARCHAR(20) UTF8", // NVARCHAR = UTF8 in Hana
             "ALPHANUM(10); VARCHAR(10) ASCII", //
             "SHORTTEXT(30); VARCHAR(30) UTF8" })
     void testDatatypeMapping(final String hanaType, final String expectedExasolType) throws SQLException {
