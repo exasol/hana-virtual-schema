@@ -37,8 +37,8 @@ public class IntegrationTestSetup implements AutoCloseable {
         this.hanaContainer = hana;
         this.exasolContainer = exasol;
         this.exasolConnection = this.createExasolConnection();
-        this.hanaConnection = DriverManager.getConnection(this.hanaContainer.getJdbcUrl(), hanaContainer.getUsername(),
-                hanaContainer.getPassword());
+        this.hanaConnection = DriverManager.getConnection(this.hanaContainer.getJdbcUrl(),
+                this.hanaContainer.getUsername(), this.hanaContainer.getPassword());
         this.exasolFactory = createExasolObjectFactory();
         this.hanaFactory = new HanaObjectFactory(this.hanaConnection);
         final ExasolSchema exasolSchema = this.exasolFactory.createSchema(SCHEMA_EXASOL);
@@ -60,7 +60,7 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     public static IntegrationTestSetup start() {
         final HanaContainer<?> hana = new HanaContainer<>(HANA_CONTAINER_VERSION).withReuse(true);
-        final ExasolContainer<?> exasol = new ExasolContainer<>(EXASOL_CONTAINER_VERSION).withReuse(true)
+        final ExasolContainer<?> exasol = new ExasolContainer<>().withReuse(true)
                 .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF);
         hana.start();
         exasol.start();
@@ -130,11 +130,11 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     public HanaSchema createHanaSchema() {
-        final String newSchemaName = "HANA_SCHEMA_" + hanaSchemaCounter++;
+        final String newSchemaName = "HANA_SCHEMA_" + this.hanaSchemaCounter++;
         if (hanaSchemaExists(newSchemaName)) {
             executeInHana("DROP SCHEMA " + newSchemaName + " CASCADE");
         }
-        return hanaFactory.createSchema(newSchemaName);
+        return this.hanaFactory.createSchema(newSchemaName);
     }
 
     public void clean(final Schema hanaSchema) {
@@ -156,11 +156,11 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     public ResultSet executeInHana(final String statement) {
-        return execute(hanaConnection, statement);
+        return execute(this.hanaConnection, statement);
     }
 
     public ResultSet executeInExasol(final String statement) {
-        return execute(exasolConnection, statement);
+        return execute(this.exasolConnection, statement);
     }
 
     private static ResultSet execute(final Connection connection, final String statement) {
@@ -178,10 +178,10 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
-        exasolConnection.close();
-        hanaConnection.close();
-        exasolContainer.close();
-        hanaContainer.close();
+        this.exasolConnection.close();
+        this.hanaConnection.close();
+        this.exasolContainer.close();
+        this.hanaContainer.close();
     }
 
     public Connection createExasolConnection() throws NoDriverFoundException, SQLException {
