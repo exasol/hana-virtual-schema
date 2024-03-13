@@ -17,8 +17,12 @@ public final class HanaObjectFactory extends AbstractObjectFactory {
      * @param connection JDBC connection
      */
     public HanaObjectFactory(final Connection connection) {
-        super(new HanaImmediateDatabaseObjectWriter(connection));
-        this.writer = new HanaImmediateDatabaseObjectWriter(connection);
+        this(new HanaImmediateDatabaseObjectWriter(connection));
+    }
+
+    HanaObjectFactory(final HanaImmediateDatabaseObjectWriter writer) {
+        super(writer);
+        this.writer = writer;
     }
 
     @Override
