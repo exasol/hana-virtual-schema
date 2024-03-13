@@ -32,7 +32,7 @@ This release fixes vulnerability CVE-2023-42503 in transitive test dependency to
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:1.2.1` to `1.3.0`
-* Updated `com.exasol:project-keeper-maven-plugin:2.9.1` to `2.9.14`
+* Updated `com.exasol:project-keeper-maven-plugin:2.9.1` to `2.9.12`
 * Updated `org.apache.maven.plugins:maven-assembly-plugin:3.4.2` to `3.6.0`
 * Updated `org.apache.maven.plugins:maven-compiler-plugin:3.10.1` to `3.11.0`
 * Updated `org.apache.maven.plugins:maven-enforcer-plugin:3.1.0` to `3.4.0`
