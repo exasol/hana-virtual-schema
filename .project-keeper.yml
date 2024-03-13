@@ -4,4 +4,7 @@ sources:
     modules:
       - jar_artifact
       - integration_tests
+build:
+  runnerOs: ubuntu-20.04
+  freeDiskSpace: true
 linkReplacements:
