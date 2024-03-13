@@ -19,11 +19,11 @@ public class HanaSchema extends AbstractSchema {
     public HanaSchema(final HanaImmediateDatabaseObjectWriter writer, final Identifier name) {
         super(name);
         this.writer = writer;
-        this.writer.write(this);
     }
 
     @Override
     public DatabaseObjectWriter getWriter() {
+        verifyNotDeleted();
         return this.writer;
     }
 
