@@ -1,6 +1,6 @@
 # Virtual Schema for SAP Hana 2.1.2, released 2024-03-13
 
-Code name: Fixed vulnerabilities CVE-2024-25710 and CVE-2024-26308 in test dependencies
+Code name: Fix vulnerabilities CVE-2024-25710 and CVE-2024-26308 in test dependencies
 
 ## Summary
 
