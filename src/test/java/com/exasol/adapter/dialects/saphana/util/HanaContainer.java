@@ -35,7 +35,7 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
     }
 
     @Override
-    protected Set<Integer> getLivenessCheckPorts() {
+    public Set<Integer> getLivenessCheckPortNumbers() {
         return Set.of(getTenantPort(), getSystemPort());
     }
 
@@ -95,16 +95,16 @@ public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabas
 
     /**
      * Modification of the default connection string because of HANA specific database selection.
-     * 
+     *
      * Query will connect to the tenant database per default. If you want to connect to the system database, supply
      * {@code ?databaseName=SYSTEMDB} as queryString
-     * 
+     *
      * @param queryString your custom query attached to the connection string
      * @return Connection object
      */
     @Override
     public Connection createConnection(String queryString) throws SQLException, NoDriverFoundException {
-        if (queryString == null || queryString.isBlank()) {
+        if ((queryString == null) || queryString.isBlank()) {
             queryString = "?databaseName=" + TENANT_DB_NAME;
         } else {
             queryString = "?databaseName=" + TENANT_DB_NAME + "&" + removeLeadingQuestionMark(queryString);

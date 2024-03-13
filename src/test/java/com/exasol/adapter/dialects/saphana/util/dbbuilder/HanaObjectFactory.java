@@ -2,7 +2,8 @@ package com.exasol.adapter.dialects.saphana.util.dbbuilder;
 
 import java.sql.Connection;
 
-import com.exasol.dbbuilder.dialects.*;
+import com.exasol.dbbuilder.dialects.AbstractObjectFactory;
+import com.exasol.dbbuilder.dialects.User;
 
 /**
  * Factory for Hana top-level database objects.
@@ -16,6 +17,7 @@ public final class HanaObjectFactory extends AbstractObjectFactory {
      * @param connection JDBC connection
      */
     public HanaObjectFactory(final Connection connection) {
+        super(new HanaImmediateDatabaseObjectWriter(connection));
         this.writer = new HanaImmediateDatabaseObjectWriter(connection);
     }
 
@@ -42,10 +44,5 @@ public final class HanaObjectFactory extends AbstractObjectFactory {
     @Override
     public HanaSchema createSchema(final String name) {
         return new HanaSchema(this.writer, HanaIdentifier.of(name));
-    }
-
-    @Override
-    protected DatabaseObjectWriter getWriter() {
-        return this.writer;
     }
 }
