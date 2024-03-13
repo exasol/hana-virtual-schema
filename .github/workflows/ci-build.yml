@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     defaults:
       run:
         shell: "bash"
@@ -20,7 +20,7 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Free Disk Space
-        if: ${{ false }}
+        if: ${{ true }}
         run: |
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
