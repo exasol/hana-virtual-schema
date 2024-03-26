@@ -7,4 +7,7 @@ sources:
 build:
   runnerOs: ubuntu-20.04
   freeDiskSpace: true
+  exasolDbVersions:
+    - "7.1.25"
+    - "8.24.0"
 linkReplacements:
