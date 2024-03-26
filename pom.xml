@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>hana-virtual-schema</artifactId>
-    <version>2.1.2</version>
+    <version>3.0.0</version>
     <name>Virtual Schema for SAP Hana</name>
     <description>Virtual Schema for SAP HANA</description>
     <url>https://github.com/exasol/hana-virtual-schema/</url>
@@ -147,7 +147,7 @@
     <parent>
         <artifactId>hana-virtual-schema-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>2.1.2</version>
+        <version>3.0.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
