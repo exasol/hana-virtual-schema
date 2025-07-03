@@ -6,7 +6,7 @@ sources:
       - integration_tests
 build:
   runnerOs: ubuntu-24.04
-  freeDiskSpace: false
+  freeDiskSpace: true
   exasolDbVersions:
     - "8.29.9" # Still not adapted to TS precision. See https://github.com/exasol/hana-virtual-schema/issues/40
   # - "7.1.30" # Exasol 7.1.x does not yet support the latest Ubuntu version
