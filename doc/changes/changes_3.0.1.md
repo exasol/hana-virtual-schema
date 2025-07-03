@@ -10,6 +10,19 @@ Code name:
 
 ## Dependency Updates
 
+### Test Dependency Updates
+
+* Updated `com.exasol:exasol-testcontainers:7.0.1` to `7.1.6`
+* Updated `com.exasol:hamcrest-resultset-matcher:1.6.5` to `1.7.1`
+* Updated `com.exasol:test-db-builder-java:3.5.4` to `3.6.2`
+* Updated `com.exasol:udf-debugging-java:0.6.12` to `0.6.16`
+* Updated `com.sap.cloud.db.jdbc:ngdbc:2.19.16` to `2.25.9`
+* Updated `org.hamcrest:hamcrest:2.2` to `3.0`
+* Updated `org.junit.jupiter:junit-jupiter:5.10.2` to `5.13.2`
+* Updated `org.mockito:mockito-junit-jupiter:5.11.0` to `5.18.0`
+* Updated `org.slf4j:slf4j-jdk14:2.0.12` to `2.0.17`
+* Updated `org.testcontainers:jdbc:1.19.7` to `1.21.3`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:artifact-reference-checker-maven-plugin:0.4.2` to `0.4.3`

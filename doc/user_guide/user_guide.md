@@ -47,7 +47,7 @@ The SQL statement below creates the adapter script, defines the Java class that 
 ```sql
 CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
      %scriptclass com.exasol.adapter.RequestDispatcher;
-     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-12.0.0-hana-3.0.0.jar;
+     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-12.0.0-hana-3.0.1.jar;
      %jar /buckets/<BFS service>/<bucket>/ngdbc-<JDBC driver version>.jar;
 /
 ;
@@ -132,3 +132,4 @@ For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30
 | Virtual Schema Version | Hana Version                       | Driver Name and Version |
 |------------------------|------------------------------------|-------------------------|
 | 1.0.1                  | hanaexpress:2.00.045.00.20200121.1 | ngdbc-2.4.56.jar        |
+| 3.0.1                  | hanaexpress:2.00.082.00.20250528.1 | ngdbc-2.25.9.jar        |

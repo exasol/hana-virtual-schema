@@ -12,7 +12,7 @@
 
 | Dependency                                 | License                               |
 | ------------------------------------------ | ------------------------------------- |
-| [Hamcrest][4]                              | [BSD License 3][5]                    |
+| [Hamcrest][4]                              | [BSD-3-Clause][5]                     |
 | [JUnit Jupiter (Aggregator)][6]            | [Eclipse Public License v2.0][7]      |
 | [mockito-junit-jupiter][8]                 | [MIT][9]                              |
 | [Test containers for Exasol on Docker][10] | [MIT License][11]                     |
@@ -21,7 +21,7 @@
 | [Test Database Builder for Java][16]       | [MIT License][17]                     |
 | [Matcher for SQL Result Sets][18]          | [MIT License][19]                     |
 | [udf-debugging-java][20]                   | [MIT License][21]                     |
-| [SLF4J JDK14 Provider][22]                 | [MIT License][23]                     |
+| [SLF4J JDK14 Provider][22]                 | [MIT][23]                             |
 
 ## Plugin Dependencies
 
@@ -57,8 +57,8 @@
 [2]: https://github.com/exasol/error-reporting-java/
 [3]: https://github.com/exasol/error-reporting-java/blob/main/LICENSE
 [4]: http://hamcrest.org/JavaHamcrest/
-[5]: http://opensource.org/licenses/BSD-3-Clause
-[6]: https://junit.org/junit5/
+[5]: https://raw.githubusercontent.com/hamcrest/JavaHamcrest/master/LICENSE
+[6]: https://junit.org/
 [7]: https://www.eclipse.org/legal/epl-v20.html
 [8]: https://github.com/mockito/mockito
 [9]: https://opensource.org/licenses/MIT
@@ -67,7 +67,7 @@
 [12]: https://java.testcontainers.org
 [13]: http://opensource.org/licenses/MIT
 [14]: https://help.sap.com/viewer/f1b440ded6144a54ada97ff95dac7adf/latest/en-US/434e2962074540e18c802fd478de86d6.html
-[15]: https://tools.hana.ondemand.com/developer-license-3_1.txt
+[15]: https://tools.hana.ondemand.com/developer-license-3_2.txt
 [16]: https://github.com/exasol/test-db-builder-java/
 [17]: https://github.com/exasol/test-db-builder-java/blob/main/LICENSE
 [18]: https://github.com/exasol/hamcrest-resultset-matcher/
@@ -75,7 +75,7 @@
 [20]: https://github.com/exasol/udf-debugging-java/
 [21]: https://github.com/exasol/udf-debugging-java/blob/main/LICENSE
 [22]: http://www.slf4j.org
-[23]: http://www.opensource.org/licenses/mit-license.php
+[23]: https://opensource.org/license/mit
 [24]: https://maven.apache.org/plugins/maven-clean-plugin/
 [25]: https://www.apache.org/licenses/LICENSE-2.0.txt
 [26]: https://maven.apache.org/plugins/maven-install-plugin/
