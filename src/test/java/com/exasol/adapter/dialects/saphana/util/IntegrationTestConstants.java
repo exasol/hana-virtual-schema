@@ -3,7 +3,7 @@ package com.exasol.adapter.dialects.saphana.util;
 import java.nio.file.Path;
 
 public final class IntegrationTestConstants {
-    public static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "virtual-schema-dist-12.0.0-hana-3.0.1.jar";
+    public static final String VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION = "virtual-schema-dist-12.0.0-hana-3.0.2.jar";
     public static final Path PATH_TO_VIRTUAL_SCHEMAS_JAR = Path.of("target", VIRTUAL_SCHEMAS_JAR_NAME_AND_VERSION);
     public static final String HANA_CONTAINER_VERSION = "2.00.082.00.20250528.1";
     public static final String SCHEMA_EXASOL = "SCHEMA_EXASOL";
