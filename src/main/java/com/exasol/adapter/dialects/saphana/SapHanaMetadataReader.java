@@ -5,6 +5,7 @@ import static com.exasol.adapter.jdbc.RemoteMetadataReaderConstants.ANY_TABLE_TY
 import java.sql.Connection;
 import java.util.Set;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.*;
 import com.exasol.adapter.jdbc.*;
@@ -18,20 +19,20 @@ public class SapHanaMetadataReader extends AbstractRemoteMetadataReader {
      *
      * @param connection JDBC connection to the remote data source
      * @param properties user-defined adapter properties
+     * @param metadata   Exasol metadata
      */
-    public SapHanaMetadataReader(final Connection connection, final AdapterProperties properties) {
-        super(connection, properties);
+    public SapHanaMetadataReader(final Connection connection, final AdapterProperties properties, final ExaMetadata metadata) {
+        super(connection, properties, metadata);
     }
 
     @Override
     protected ColumnMetadataReader createColumnMetadataReader() {
-        return new HanaColumnMetadataReader(this.connection, this.properties, this.identifierConverter);
+        return new HanaColumnMetadataReader(this.connection, this.properties, this.exaMetadata, this.identifierConverter);
     }
 
     @Override
     protected TableMetadataReader createTableMetadataReader() {
-        return new BaseTableMetadataReader(this.connection, this.columnMetadataReader, this.properties,
-                this.identifierConverter);
+        return new BaseTableMetadataReader(this.connection, this.columnMetadataReader, this.properties, this.exaMetadata, this.identifierConverter);
     }
 
     @Override

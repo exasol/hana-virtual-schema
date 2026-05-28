@@ -58,6 +58,7 @@ public class IntegrationTestSetup implements AutoCloseable {
         return new ExasolObjectFactory(this.exasolConnection, builder.build());
     }
 
+    @SuppressWarnings("resource") // Containers will be closed in the close() method
     public static IntegrationTestSetup start() {
         final HanaContainer<?> hana = new HanaContainer<>(HANA_CONTAINER_VERSION).withReuse(true);
         final ExasolContainer<?> exasol = new ExasolContainer<>().withReuse(true)
@@ -115,9 +116,12 @@ public class IntegrationTestSetup implements AutoCloseable {
     public VirtualSchema createVirtualSchema(final Schema hanaSchema) {
         final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", hanaSchema.getName()));
         properties.putAll(debugProperties());
-        return this.exasolFactory.createVirtualSchemaBuilder("HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++))
-                .adapterScript(this.adapterScript).connectionDefinition(this.connectionDefinition)
-                .sourceSchemaName(hanaSchema.getName()).properties(properties).build();
+        final String virtualSchemaName = "HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++);
+        return this.exasolFactory.createVirtualSchemaBuilder(virtualSchemaName)
+                .adapterScript(this.adapterScript)
+                .connectionDefinition(this.connectionDefinition)
+                .sourceSchemaName(hanaSchema.getName())
+                .addProperties(properties).build();
     }
 
     private Map<String, String> debugProperties() {

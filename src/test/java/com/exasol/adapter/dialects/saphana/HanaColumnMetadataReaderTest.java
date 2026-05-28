@@ -4,21 +4,30 @@ import static com.exasol.adapter.metadata.DataType.ExaCharset.ASCII;
 import static com.exasol.adapter.metadata.DataType.ExaCharset.UTF8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
 import com.exasol.adapter.dialects.BaseIdentifierConverter;
 import com.exasol.adapter.jdbc.JDBCTypeDescription;
 import com.exasol.adapter.metadata.DataType;
 
+@ExtendWith(MockitoExtension.class)
 class HanaColumnMetadataReaderTest {
     private HanaColumnMetadataReader hanaColumnMetadataReader;
+    @Mock
+    ExaMetadata exaMetadataMock;
 
     @BeforeEach
     void beforeEach() {
-        this.hanaColumnMetadataReader = new HanaColumnMetadataReader(null, AdapterProperties.emptyProperties(),
+        when(exaMetadataMock.getDatabaseVersion()).thenReturn("3.2.1");
+        this.hanaColumnMetadataReader = new HanaColumnMetadataReader(null, AdapterProperties.emptyProperties(), exaMetadataMock,
                 BaseIdentifierConverter.createDefault());
     }
 
