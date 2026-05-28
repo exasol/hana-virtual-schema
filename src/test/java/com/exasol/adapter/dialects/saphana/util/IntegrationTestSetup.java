@@ -17,11 +17,12 @@ import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 import com.exasol.dbbuilder.dialects.Schema;
 import com.exasol.dbbuilder.dialects.exasol.*;
+import com.exasol.drivers.JdbcDriver;
 import com.exasol.udfdebugging.UdfTestSetup;
 import com.github.dockerjava.api.model.ContainerNetwork;
 
 public class IntegrationTestSetup implements AutoCloseable {
-    private final HanaContainer<?> hanaContainer;
+    private final HanaContainer hanaContainer;
     private final ExasolContainer<?> exasolContainer;
     private final Connection exasolConnection;
     private final Connection hanaConnection;
@@ -32,7 +33,7 @@ public class IntegrationTestSetup implements AutoCloseable {
     private int virtualSchemaCounter = 0;
     private int hanaSchemaCounter = 0;
 
-    public IntegrationTestSetup(final HanaContainer<?> hana, final ExasolContainer<?> exasol)
+    public IntegrationTestSetup(final HanaContainer hana, final ExasolContainer<?> exasol)
             throws NoDriverFoundException, SQLException {
         this.hanaContainer = hana;
         this.exasolContainer = exasol;
@@ -58,13 +59,14 @@ public class IntegrationTestSetup implements AutoCloseable {
         return new ExasolObjectFactory(this.exasolConnection, builder.build());
     }
 
+    @SuppressWarnings("resource") // Containers will be closed in the close() method
     public static IntegrationTestSetup start() {
-        final HanaContainer<?> hana = new HanaContainer<>(HANA_CONTAINER_VERSION).withReuse(true);
+        final HanaContainer hana = new HanaContainer(HANA_CONTAINER_VERSION).withReuse(true);
         final ExasolContainer<?> exasol = new ExasolContainer<>().withReuse(true)
                 .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF);
         hana.start();
         exasol.start();
-        uploadDriverToBucket(exasol.getDefaultBucket());
+        uploadDriverToBucket(exasol);
         uploadVsJarToBucket(exasol.getDefaultBucket());
         try {
             return new IntegrationTestSetup(hana, exasol);
@@ -73,18 +75,13 @@ public class IntegrationTestSetup implements AutoCloseable {
         }
     }
 
-    private static void uploadDriverToBucket(final Bucket bucket) {
-        final String pathInBucket = "drivers/jdbc/" + JDBC_DRIVER_NAME;
-        try {
-            bucket.uploadStringContent(JDBC_DRIVER_CONFIGURATION_FILE_CONTENT,
-                    "drivers/jdbc/" + JDBC_DRIVER_CONFIGURATION_FILE_NAME);
-            bucket.uploadFile(JDBC_DRIVER_PATH, pathInBucket);
-        } catch (final BucketAccessException | FileNotFoundException | InterruptedException
-                | TimeoutException exception) {
-            throw new IllegalStateException(
-                    "Failed to upload JDBC driver from " + JDBC_DRIVER_PATH.toAbsolutePath() + " to " + pathInBucket,
-                    exception);
-        }
+    private static void uploadDriverToBucket(final ExasolContainer<?> exasol) {
+        exasol.getDriverManager().install(JdbcDriver.builder("HANA")
+                .sourceFile(JDBC_DRIVER_PATH)
+                .mainClass("com.sap.db.jdbc.Driver")
+                .prefix("jdbc:sap:")
+                .enableSecurityManager(false)
+                .build());
     }
 
     private static void uploadVsJarToBucket(final Bucket bucket) {
@@ -115,9 +112,12 @@ public class IntegrationTestSetup implements AutoCloseable {
     public VirtualSchema createVirtualSchema(final Schema hanaSchema) {
         final Map<String, String> properties = new HashMap<>(Map.of("CATALOG_NAME", hanaSchema.getName()));
         properties.putAll(debugProperties());
-        return this.exasolFactory.createVirtualSchemaBuilder("HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++))
-                .adapterScript(this.adapterScript).connectionDefinition(this.connectionDefinition)
-                .sourceSchemaName(hanaSchema.getName()).properties(properties).build();
+        final String virtualSchemaName = "HANA_VIRTUAL_SCHEMA_" + (this.virtualSchemaCounter++);
+        return this.exasolFactory.createVirtualSchemaBuilder(virtualSchemaName)
+                .adapterScript(this.adapterScript)
+                .connectionDefinition(this.connectionDefinition)
+                .sourceSchemaName(hanaSchema.getName())
+                .addProperties(properties).build();
     }
 
     private Map<String, String> debugProperties() {

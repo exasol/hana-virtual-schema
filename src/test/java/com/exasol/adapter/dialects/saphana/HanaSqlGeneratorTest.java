@@ -1,19 +1,21 @@
 package com.exasol.adapter.dialects.saphana;
 
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.sql.SqlLiteralBool;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.JDBCAdapterContext;
+import com.exasol.adapter.sql.SqlLiteralBool;
 
 class HanaSqlGeneratorTest {
     private HanaSqlGenerator sqlGenerator;
 
     @BeforeEach
     void beforeEach() {
-        final SapHanaSqlDialect dialect = new SapHanaSqlDialect(null, AdapterProperties.emptyProperties());
+        final SapHanaSqlDialect dialect = new SapHanaSqlDialect(JDBCAdapterContext.builder().properties(AdapterProperties.emptyProperties()).build());
         this.sqlGenerator = new HanaSqlGenerator(dialect, null);
     }
 

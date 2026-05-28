@@ -1,9 +1,6 @@
 package com.exasol.adapter.dialects.saphana;
 
-import com.exasol.adapter.AdapterProperties;
-import com.exasol.adapter.dialects.SqlDialect;
-import com.exasol.adapter.dialects.SqlDialectFactory;
-import com.exasol.adapter.jdbc.ConnectionFactory;
+import com.exasol.adapter.dialects.*;
 import com.exasol.logging.VersionCollector;
 
 /**
@@ -16,14 +13,19 @@ public class SapHanaSqlDialectFactory implements SqlDialectFactory {
     }
 
     @Override
-    public SqlDialect createSqlDialect(final ConnectionFactory connectionFactory, final AdapterProperties properties) {
-        return new SapHanaSqlDialect(connectionFactory, properties);
+    public SqlDialect createSqlDialect(final JDBCAdapterContext context) {
+        return new SapHanaSqlDialect(context);
     }
 
     @Override
     public String getSqlDialectVersion() {
         final VersionCollector versionCollector = new VersionCollector(
-                "META-INF/maven/com.exasol/virtual-schema-jdbc-adapter/pom.properties");
+                "META-INF/maven/com.exasol/hana-virtual-schema/pom.properties");
         return versionCollector.getVersionNumber();
+    }
+
+    @Override
+    public String getAdapterProjectShortTag() {
+        return "VSHANA";
     }
 }

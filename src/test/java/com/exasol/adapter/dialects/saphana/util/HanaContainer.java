@@ -14,7 +14,7 @@ import org.testcontainers.utility.TestcontainersConfiguration;
 /**
  * A testcontaner for the SAP HANA database, based on https://github.com/testcontainers/testcontainers-java/pull/3017
  */
-public class HanaContainer<SELF extends HanaContainer<SELF>> extends JdbcDatabaseContainer<SELF> {
+public class HanaContainer extends JdbcDatabaseContainer<HanaContainer> {
 
     private static final String DB_DRIVER = "com.sap.db.jdbc.Driver";
 

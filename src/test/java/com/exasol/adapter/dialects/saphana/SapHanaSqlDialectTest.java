@@ -30,7 +30,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.exasol.ExaMetadata;
 import com.exasol.adapter.AdapterProperties;
+import com.exasol.adapter.dialects.JDBCAdapterContext;
 import com.exasol.adapter.dialects.SqlDialect;
 import com.exasol.adapter.dialects.rewriting.ImportIntoTemporaryTableQueryRewriter;
 import com.exasol.adapter.jdbc.ConnectionFactory;
@@ -43,11 +45,15 @@ import com.exasol.adapter.sql.ScalarFunction;
 class SapHanaSqlDialectTest {
     private SapHanaSqlDialect dialect;
     @Mock
-    private ConnectionFactory connectionFactoryMock;
+    ConnectionFactory connectionFactoryMock;
+    @Mock
+    ExaMetadata exaMetadataMock;
 
     @BeforeEach
     void beforeEach() {
-        this.dialect = new SapHanaSqlDialect(this.connectionFactoryMock, AdapterProperties.emptyProperties());
+        this.dialect = new SapHanaSqlDialect(
+                JDBCAdapterContext.builder().connectionFactory(this.connectionFactoryMock).properties(AdapterProperties.emptyProperties())
+                        .metadata(this.exaMetadataMock).build());
     }
 
     @Test
@@ -147,6 +153,7 @@ class SapHanaSqlDialectTest {
 
     @Test
     void testMetadataReaderClass(@Mock final Connection connectionMock) throws SQLException {
+        when(exaMetadataMock.getDatabaseVersion()).thenReturn("3.2.1");
         when(this.connectionFactoryMock.getConnection()).thenReturn(connectionMock);
         assertThat(this.dialect.createRemoteMetadataReader(), instanceOf(SapHanaMetadataReader.class));
     }
@@ -164,7 +171,7 @@ class SapHanaSqlDialectTest {
         assertThat(this.dialect.getSupportedProperties(),
                 containsInAnyOrder(CONNECTION_NAME_PROPERTY, CATALOG_NAME_PROPERTY, SCHEMA_NAME_PROPERTY,
                         TABLE_FILTER_PROPERTY, EXCLUDED_CAPABILITIES_PROPERTY, DEBUG_ADDRESS_PROPERTY,
-                        LOG_LEVEL_PROPERTY, DataTypeDetection.STRATEGY_PROPERTY, TableCountLimit.MAXTABLES_PROPERTY));
+                        LOG_LEVEL_PROPERTY, DataTypeDetection.STRATEGY_PROPERTY, TableCountLimit.MAXTABLES_PROPERTY, "TELEMETRY"));
     }
 
     @Test
@@ -190,6 +197,7 @@ class SapHanaSqlDialectTest {
 
     @Test
     void testCreateQueryRewriter() {
+        when(exaMetadataMock.getDatabaseVersion()).thenReturn("3.2.1");
         assertThat(this.dialect.createQueryRewriter(), instanceOf(ImportIntoTemporaryTableQueryRewriter.class));
     }
 }

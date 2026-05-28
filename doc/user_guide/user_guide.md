@@ -2,35 +2,38 @@
 
 The Hana SQL dialect allows you to access [Hana](https://www.sap.com/products/hana.html) databases via Virtual Schemas.
 
-## Registering the JDBC Driver in EXAOperation
+## Telemetry
 
-Download the latest version of the [SAP HANA JDBC driver](https://search.maven.org/search?q=g:com.sap.cloud.db.jdbc%20AND%20a:ngdbc&core=gav).
+This virtual schema uses `telemetry-java` to send anonymous feature-usage events.
 
-Now register the driver in EXAOperation:
+For details on what is collected and how to disable telemetry, see the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md).
 
-1. Click "Software"
-1. Switch to tab "JDBC Drivers"
-1. Click "Browse..."
-1. Select JDBC driver file
-1. Click "Upload"
-1. Click "Add"
-1. In dialog "Add EXACluster JDBC driver" configure the JDBC driver (see below)
+## Uploading the JDBC Driver to Exasol BucketFS
 
-You need to specify the following settings when adding the JDBC driver via EXAOperation.
+1. Download the [SAP HANA JDBC driver](https://central.sonatype.com/artifact/com.sap.cloud.db.jdbc/ngdbc).
+2. Upload the driver to BucketFS, see [BucketFS documentation](https://docs.exasol.com/db/latest/administration/on-premise/bucketfs/accessfiles.htm).
 
-| Parameter | Value                                               |
-|-----------|-----------------------------------------------------|
-| Name      | `SAPHANA`                                           |
-| Main      | `com.sap.db.jdbc.Driver`                            |
-| Prefix    | `jdbc:sap:`                                         |
-| Files     | `ngdbc-<JDBC driver version>.jar`                   |
+    Hint: Put the driver into folder `default/drivers/jdbc/` to register it for [ExaLoader](#registering-the-jdbc-driver-for-exaloader), too.
 
-## Uploading the JDBC Driver to EXAOperation
+## Registering the JDBC driver for ExaLoader
 
-1. [Create a bucket in BucketFS](https://docs.exasol.com/administration/on-premise/bucketfs/create_new_bucket_in_bucketfs_service.htm) 
-1. Upload the driver to BucketFS
+In order to enable the ExaLoader to fetch data from the external database you must register the driver for ExaLoader as described in the [Installation procedure for JDBC drivers](https://github.com/exasol/docker-db/#installing-custom-jdbc-drivers).
+1. ExaLoader expects the driver in BucketFS folder `default/drivers/jdbc`.
 
-This step is necessary since the UDF container the adapter runs in has no access to the JDBC drivers installed via EXAOperation but it can access BucketFS.
+   If you uploaded the driver for UDF to a different folder, then you need to [upload](#uploading-the-jdbc-driver-to-exasol-bucketfs) the driver again.
+2. Additionally  you need to create file `settings.cfg` and [upload](#uploading-the-jdbc-driver-to-exasol-bucketfs) it to the same folder in BucketFS:
+
+   ```properties
+   DRIVERNAME=HANA
+   JAR=ngdbc.jar
+   DRIVERMAIN=com.sap.db.jdbc.Driver
+   PREFIX=jdbc:sap:
+   NOSECURITY=YES
+   FETCHSIZE=100000
+   INSERTSIZE=-1
+   
+   ```
+   Ensure that the file ends with a trailing newline.
 
 ## Installing the Adapter Script
 
@@ -47,7 +50,7 @@ The SQL statement below creates the adapter script, defines the Java class that 
 ```sql
 CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
      %scriptclass com.exasol.adapter.RequestDispatcher;
-     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-12.0.0-hana-3.0.2.jar;
+     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-14.0.2-hana-4.0.0.jar;
      %jar /buckets/<BFS service>/<bucket>/ngdbc-<JDBC driver version>.jar;
 /
 ;
@@ -127,9 +130,10 @@ Also here the only solution is to not use it in conjunction with a Virtual Schem
 The type `TIME` always comes to Virtual Schema as a `TIMESTAMP` data type therefore it has not only time, but also date.
 For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
 
-## Testing information
+## Testing Information
 
 | Virtual Schema Version | Hana Version                       | Driver Name and Version |
 |------------------------|------------------------------------|-------------------------|
 | 1.0.1                  | hanaexpress:2.00.045.00.20200121.1 | ngdbc-2.4.56.jar        |
 | 3.0.1                  | hanaexpress:2.00.082.00.20250528.1 | ngdbc-2.25.9.jar        |
+| 4.0.0                  | hanaexpress:2.00.088.00.20251110.1 | ngdbc-2.28.7.jar        |
