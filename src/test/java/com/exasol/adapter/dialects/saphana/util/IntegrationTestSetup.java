@@ -21,7 +21,7 @@ import com.exasol.udfdebugging.UdfTestSetup;
 import com.github.dockerjava.api.model.ContainerNetwork;
 
 public class IntegrationTestSetup implements AutoCloseable {
-    private final HanaContainer<?> hanaContainer;
+    private final HanaContainer hanaContainer;
     private final ExasolContainer<?> exasolContainer;
     private final Connection exasolConnection;
     private final Connection hanaConnection;
@@ -32,7 +32,7 @@ public class IntegrationTestSetup implements AutoCloseable {
     private int virtualSchemaCounter = 0;
     private int hanaSchemaCounter = 0;
 
-    public IntegrationTestSetup(final HanaContainer<?> hana, final ExasolContainer<?> exasol)
+    public IntegrationTestSetup(final HanaContainer hana, final ExasolContainer<?> exasol)
             throws NoDriverFoundException, SQLException {
         this.hanaContainer = hana;
         this.exasolContainer = exasol;
@@ -60,7 +60,7 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     @SuppressWarnings("resource") // Containers will be closed in the close() method
     public static IntegrationTestSetup start() {
-        final HanaContainer<?> hana = new HanaContainer<>(HANA_CONTAINER_VERSION).withReuse(true);
+        final HanaContainer hana = new HanaContainer(HANA_CONTAINER_VERSION).withReuse(true);
         final ExasolContainer<?> exasol = new ExasolContainer<>().withReuse(true)
                 .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF);
         hana.start();
