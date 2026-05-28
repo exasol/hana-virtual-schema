@@ -17,6 +17,7 @@ import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 import com.exasol.dbbuilder.dialects.Schema;
 import com.exasol.dbbuilder.dialects.exasol.*;
+import com.exasol.drivers.JdbcDriver;
 import com.exasol.udfdebugging.UdfTestSetup;
 import com.github.dockerjava.api.model.ContainerNetwork;
 
@@ -65,7 +66,7 @@ public class IntegrationTestSetup implements AutoCloseable {
                 .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF);
         hana.start();
         exasol.start();
-        uploadDriverToBucket(exasol.getDefaultBucket());
+        uploadDriverToBucket(exasol);
         uploadVsJarToBucket(exasol.getDefaultBucket());
         try {
             return new IntegrationTestSetup(hana, exasol);
@@ -74,18 +75,13 @@ public class IntegrationTestSetup implements AutoCloseable {
         }
     }
 
-    private static void uploadDriverToBucket(final Bucket bucket) {
-        final String pathInBucket = "drivers/jdbc/" + JDBC_DRIVER_NAME;
-        try {
-            bucket.uploadStringContent(JDBC_DRIVER_CONFIGURATION_FILE_CONTENT,
-                    "drivers/jdbc/" + JDBC_DRIVER_CONFIGURATION_FILE_NAME);
-            bucket.uploadFile(JDBC_DRIVER_PATH, pathInBucket);
-        } catch (final BucketAccessException | FileNotFoundException | InterruptedException
-                | TimeoutException exception) {
-            throw new IllegalStateException(
-                    "Failed to upload JDBC driver from " + JDBC_DRIVER_PATH.toAbsolutePath() + " to " + pathInBucket,
-                    exception);
-        }
+    private static void uploadDriverToBucket(final ExasolContainer<?> exasol) {
+        exasol.getDriverManager().install(JdbcDriver.builder("HANA")
+                .sourceFile(JDBC_DRIVER_PATH)
+                .mainClass("com.sap.db.jdbc.Driver")
+                .prefix("jdbc:sap:")
+                .enableSecurityManager(false)
+                .build());
     }
 
     private static void uploadVsJarToBucket(final Bucket bucket) {
