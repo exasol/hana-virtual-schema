@@ -130,9 +130,10 @@ Also here the only solution is to not use it in conjunction with a Virtual Schem
 The type `TIME` always comes to Virtual Schema as a `TIMESTAMP` data type therefore it has not only time, but also date.
 For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
 
-## Testing information
+## Testing Information
 
 | Virtual Schema Version | Hana Version                       | Driver Name and Version |
 |------------------------|------------------------------------|-------------------------|
 | 1.0.1                  | hanaexpress:2.00.045.00.20200121.1 | ngdbc-2.4.56.jar        |
 | 3.0.1                  | hanaexpress:2.00.082.00.20250528.1 | ngdbc-2.25.9.jar        |
+| 4.0.0                  | hanaexpress:2.00.088.00.20251110.1 | ngdbc-2.28.7.jar        |
