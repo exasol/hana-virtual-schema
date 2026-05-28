@@ -24,7 +24,7 @@ class SapHanaDialectFactoryTest {
 
     @Test
     void testGetAdapterProjectShortTag() {
-        assertThat(this.factory.getAdapterProjectShortTag(), equalTo("SAPHANA"));
+        assertThat(this.factory.getAdapterProjectShortTag(), equalTo("VSHANA"));
     }
 
     @Test
