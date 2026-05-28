@@ -1,12 +1,22 @@
-# Virtual Schema for SAP Hana 4.0.0, released 2026-??-??
+# Virtual Schema for SAP Hana 4.0.0, released 2026-05-28
 
-Code name:
+Code name: Anonymous telemetry
 
 ## Summary
 
+This release introduces anonymous feature-usage telemetry through `telemetry-java`. See the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md) for details about the collected data and how to opt out.
+
+## Breaking Change
+
+Starting with this release, this Virtual Schema no longer supports Exasol 7.1. The supported versions are the current release and the LTS release line `2025.1.x`.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #47: Added anonymous feature-usage tracking
+
+## Bugfixes
+
+* #46: Fixed adapter version
 
 ## Dependency Updates
 
