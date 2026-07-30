@@ -31,7 +31,7 @@ In order to enable the ExaLoader to fetch data from the external database you mu
    NOSECURITY=YES
    FETCHSIZE=100000
    INSERTSIZE=-1
-   
+
    ```
    Ensure that the file ends with a trailing newline.
 
@@ -50,18 +50,18 @@ The SQL statement below creates the adapter script, defines the Java class that 
 ```sql
 CREATE JAVA ADAPTER SCRIPT ADAPTER.JDBC_ADAPTER AS
      %scriptclass com.exasol.adapter.RequestDispatcher;
-     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-14.0.2-hana-4.0.1.jar;
+     %jar /buckets/<BFS service>/<bucket>/virtual-schema-dist-14.0.4-hana-4.0.1.jar;
      %jar /buckets/<BFS service>/<bucket>/ngdbc-<JDBC driver version>.jar;
 /
 ;
 ```
 
 ## Defining a Named Connection
-    
+
 ```sql
-CREATE OR REPLACE CONNECTION HANA_CONNECTION 
-TO 'jdbc:sap://<HANA host or IP address>:<port>' 
-USER '<user>' 
+CREATE OR REPLACE CONNECTION HANA_CONNECTION
+TO 'jdbc:sap://<HANA host or IP address>:<port>'
+USER '<user>'
 IDENTIFIED BY '<password>';
 ```
 
@@ -71,7 +71,7 @@ Below you see how a Hana Virtual Schema is created. Please note that you have to
 
 ```sql
 CREATE VIRTUAL SCHEMA <virtual schema name>
-    USING ADAPTER.JDBC_ADAPTER 
+    USING ADAPTER.JDBC_ADAPTER
     WITH
     CONNECTION_NAME = 'HANA_CONNECTION'
     SCHEMA_NAME = '<schema name>';
@@ -128,7 +128,7 @@ Also here the only solution is to not use it in conjunction with a Virtual Schem
 ### Column Type `TIME`
 
 The type `TIME` always comes to Virtual Schema as a `TIMESTAMP` data type therefore it has not only time, but also date.
-For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date. 
+For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30:25.0 where date is a current date.
 
 ## Testing Information
 
@@ -137,3 +137,4 @@ For now, it is always a current date. Example: 10:30:25 will be 27.06.2019 10:30
 | 1.0.1                  | hanaexpress:2.00.045.00.20200121.1 | ngdbc-2.4.56.jar        |
 | 3.0.1                  | hanaexpress:2.00.082.00.20250528.1 | ngdbc-2.25.9.jar        |
 | 4.0.0                  | hanaexpress:2.00.088.00.20251110.1 | ngdbc-2.28.7.jar        |
+| 4.0.1                  | hanaexpress:2.00.088.00.20251110.1 | ngdbc-2.29.7.jar        |
