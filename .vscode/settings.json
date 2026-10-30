@@ -17,5 +17,6 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "exasol",
         "projectKey": "com.exasol:hana-virtual-schema"
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

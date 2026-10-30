@@ -123,10 +123,19 @@ OW2 ASM 3.0 before 9.11 contains an uncontrolled memory allocation vulnerability
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:virtual-schema-common-jdbc:14.0.4` to `14.1.1`
+
 ### Test Dependency Updates
 
 * Updated `com.exasol:exasol-testcontainers:8.0.1` to `8.0.2`
+* Updated `com.exasol:hamcrest-resultset-matcher:1.7.3` to `1.7.4`
+* Updated `com.exasol:test-db-builder-java:4.0.2` to `4.0.3`
 * Updated `com.exasol:udf-debugging-java:0.6.20` to `0.6.22`
+* Updated `com.sap.cloud.db.jdbc:ngdbc:2.29.7` to `2.30.11`
+* Updated `org.mockito:mockito-junit-jupiter:5.23.0` to `5.24.0`
+* Updated `org.slf4j:slf4j-jdk14:2.0.18` to `2.0.20`
 
 ### Plugin Dependency Updates
 
